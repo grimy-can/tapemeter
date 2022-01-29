@@ -1,6 +1,5 @@
 # Script for counting average cassette's tape lenght
-import datetime
-import time
+from datetime import time, timedelta, datetime
 import PyQt5
 from PyQt5 import QtWidgets, uic
 import sys
