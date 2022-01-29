@@ -13,8 +13,8 @@ def len_cal(dic):
     return atl
 
 
-tapemeter_dtb = dict()
 # open database file with stored data and add some:
+tapemeter_dtb = dict()
 with open("tapemeter.dtb", "r") as file:
     for line in file:
         if line.strip().startswith('The'):
@@ -26,17 +26,21 @@ with open("tapemeter.dtb", "r") as file:
 av_count = len_cal(tapemeter_dtb)
 now = datetime.date.today()  # Current date
 
-choise = input("""Choose calculation:
+choise = input("""Choose option:
 1 - Add new data to base
 2 - Calculate side duration 
 3 - Exit \n""")
 if choise == '1':
     tapemetr_dtb = dict()
     print("You about add new data to base.")
-    k = input(f"Enter counter : ")
-    v = int(input(f"Enter time: "))
-    tapemetr_dtb[str(k)] = v
-    with open("tapemeter.dtb", "a") as file:
+    k = input("Enter counter : ")
+    if k == '0':
+        exit()
+    m = int(input("Enter min: "))
+    s = int(input("Enter sec: "))
+    time = datetime.timedelta(minutes=m, seconds=s)
+    tapemetr_dtb[str(k)] = time
+    with open("tapemeter.dtb", "w") as file:
         for k, v in tapemetr_dtb.items():
             file.write(str(f"{k} \t:\t {v}\n"))
         file.write(f"The database has been updated {now} \n")
