@@ -10,10 +10,9 @@ def len_cal(dic):
     total_t = timedelta(minutes=0)
     total_c = sum(map(int, dic.keys()))
     for t in dic.values():
-        total_t += timedelta(
-                    hours=t[0],
-                    minutes=t[1],
-                    seconds=t[2])
+        time_d = timedelta(hours=t.hour, minutes=t.minute,
+                           seconds=t.second)
+        total_t += time_d
     one_turn = total_t / total_c
     return one_turn
 
@@ -25,14 +24,18 @@ with open("tapemeter.dtb", "r") as file:
         if line.strip().startswith('No'):
             print("No data so far")
             file_mode = 'w'
+            break
         elif line.strip().startswith('The'):
             continue
         else:
             file_mode = 'a'
-            new_data = list(map(int, line.split(":")))
-            tapemeter_dtb[str(new_data[0])] = new_data[1]
-            count_one = len_cal(tapemeter_dtb)
-
+            new_data = list(line.split("="))
+            tapemeter_dtb[str(new_data[0])] = \
+                datetime.strptime(new_data[1].strip(), '%H:%M:%S')
+    if len(tapemeter_dtb) > 0:
+        count_one = len_cal(tapemeter_dtb)
+        print(f"Average duration of one rotation \n"
+              f"of the counter is {count_one}")
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 
 choise = input("""Choose option:
@@ -41,30 +44,34 @@ choise = input("""Choose option:
 3 - Exit \n""")
 if choise == '1':
     print("You about add new data to base.")
-    number_of_readings = int(input())
+    number_of_readings = int(input("Enter the number of readings: \n"))
     total_count, total_time = 0, timedelta(minutes=0)
     for reading in range(number_of_readings):
         read_count = int(input("Enter counter : "))
         read_time = tuple(map(int, input('Enter time (H M S): ').split()))
-        tapemeter_dtb[str(read_count)] = read_time
-        total_count += read_count
-        total_time += timedelta(
+        read_time_d = timedelta(
             hours=read_time[0],
             minutes=read_time[1],
             seconds=read_time[2])
+        total_count += read_count
+        total_time += read_time_d
+        tapemeter_dtb[str(read_count)] = read_time_d
     count_one_new = total_time / total_count
-
+    print(f"One round of counter = {count_one_new}")
+    # write new data to file:
     with open("tapemeter.dtb", file_mode) as file:
         for count, time in tapemeter_dtb.items():
-            file.write(str(f"{count} \t:\t {time}\n"))
+            file.write(str(f"{count}={time}\n"))
         file.write(f"The database has been updated {now} \n")
-    print(f"One round of counter = {count_one_new}")
 
 elif choise == '2':
     read_count = int(input("Enter counter : "))
     tape_len = (count_one * read_count) * 2 \
         - timedelta(minutes=0, seconds=20)
-    print(f"Your cassette side is {tape_len} long")
+    # get rid from microseconds:
+    tape_len = tape_len - timedelta(
+        microseconds=tape_len.microseconds)
+    print(f"Your cassette is {tape_len} long")
 
 elif choise == '3':
     exit()
