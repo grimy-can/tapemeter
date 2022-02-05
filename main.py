@@ -46,6 +46,7 @@ if choise == '1':
     print("You about add new data to base.")
     number_of_readings = int(input("Enter the number of readings: \n"))
     total_count, total_time = 0, timedelta(minutes=0)
+    tapemeter_dtb_new = dict()
     for reading in range(number_of_readings):
         read_count = int(input("Enter counter : "))
         read_time = tuple(map(int, input('Enter time (H M S): ').split()))
@@ -55,12 +56,12 @@ if choise == '1':
             seconds=read_time[2])
         total_count += read_count
         total_time += read_time_d
-        tapemeter_dtb[str(read_count)] = read_time_d
+        tapemeter_dtb_new[str(read_count)] = read_time_d
     count_one_new = total_time / total_count
     print(f"One round of counter = {count_one_new}")
     # write new data to file:
     with open("tapemeter.dtb", file_mode) as file:
-        for count, time in tapemeter_dtb.items():
+        for count, time in tapemeter_dtb_new.items():
             file.write(str(f"{count}={time}\n"))
         file.write(f"The database has been updated {now} \n")
 
@@ -71,7 +72,8 @@ elif choise == '2':
     # get rid from microseconds:
     tape_len = tape_len - timedelta(
         microseconds=tape_len.microseconds)
-    print(f"Your cassette is {tape_len} long")
+    print(f"Your cassette is {tape_len} long \n"
+          f"with {tape_len / 2} side")
 
 elif choise == '3':
     exit()
