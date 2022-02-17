@@ -1,8 +1,6 @@
 # Script for counting average cassette's tape lenght
-from datetime import time, timedelta, datetime, date
-import PyQt5
-from PyQt5 import QtWidgets, uic
-import sys
+from datetime import timedelta, datetime
+from openpyxl import Workbook
 
 
 def len_cal(dic):
@@ -16,6 +14,12 @@ def len_cal(dic):
     one_turn = total_t / total_c
     return one_turn
 
+# create a file on the filesystem with openpyxl
+# and with one worksheet & set it's name:
+wb = Workbook()
+ws = wb.active
+ws.title = "Tapemeter Database"
+ws.sheet_properties.tabColor = "1072BA"
 
 # open database file with stored data and get one turn:
 tapemeter_dtb, file_mode = dict(), ''
@@ -41,7 +45,8 @@ now = datetime.today().strftime('%Y-%m-%d')  # Current date
 choise = input("""Choose option:
 1 - Add new data to base
 2 - Calculate side duration 
-3 - Exit \n""")
+3 - Print database from text file
+0 - Exit \n""")
 if choise == '1':
     print("You about add new data to base.")
     number_of_readings = int(input("Enter the number of readings: \n"))
@@ -76,4 +81,11 @@ elif choise == '2':
           f"with {tape_len / 2} side")
 
 elif choise == '3':
+    for k, v in tapemeter_dtb.items():
+        print(k + ':', v.strftime('%H:%M:%S'))
+
+elif choise == '0':
     exit()
+
+
+
