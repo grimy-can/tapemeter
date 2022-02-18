@@ -1,6 +1,7 @@
 # Script for counting average cassette's tape lenght
-from datetime import timedelta, datetime
 from openpyxl import Workbook
+from openpyxl.styles import Font, Color
+from datetime import timedelta, datetime
 
 
 def len_cal(dic):
@@ -13,6 +14,7 @@ def len_cal(dic):
         total_t += time_d
     one_turn = total_t / total_c
     return one_turn
+
 
 # create a file on the filesystem with openpyxl
 # and with one worksheet & set it's name:
@@ -46,6 +48,7 @@ choise = input("""Choose option:
 1 - Add new data to base
 2 - Calculate side duration 
 3 - Print database from text file
+4 - Update xlsx from text file
 0 - Exit \n""")
 if choise == '1':
     print("You about add new data to base.")
@@ -84,8 +87,33 @@ elif choise == '3':
     for k, v in tapemeter_dtb.items():
         print(k + ':', v.strftime('%H:%M:%S'))
 
+elif choise == '4':
+    ws["A1"], ws["B1"] = "Readings", "Time"
+    font = Font(color="FFFFFF")
+    ws["A1"].font = Font(size=11, bold=True)
+    ws["B1"].font = Font(size=11, bold=True)
+    ws["A1"].style = 'Accent6'
+    ws["B1"].style = 'Accent6'
+    # merge cells:
+    ws.merge_cells('C1:F1')
+    ws.merge_cells('C2:F2')
+    ws.merge_cells('C3:F3')
+    ws.merge_cells('C4:F4')
+    ws["C1"] = "Database have been saved"
+    ws["C2"] = f"{now} at {datetime.today().strftime('%H-%M')}"
+    ws["C3"] = "Counter model: АЭЛИТА РМ-204 С"
+    ws["C4"] = f"1 of counter = {count_one}"
+    ws["C1"].style = '20 % - Accent1'
+    ws["C2"].style = '20 % - Accent2'
+    ws["C3"].style = '20 % - Accent5'
+    ws["C4"].style = '40 % - Accent5'
+    for x in range(2, len(tapemeter_dtb.keys()) + 2):
+        ws.cell(row=x, column=1, value=list(tapemeter_dtb.keys())[x - 2])
+    for x in range(2, len(tapemeter_dtb.keys()) + 2):
+        ws.cell(row=x, column=2, value=list(tapemeter_dtb.values())[
+            x - 2].strftime('%H:%M:%S'))
+    wb.save('database.xlsx')
+    print("Tapemetre database have been saved")
+
 elif choise == '0':
     exit()
-
-
-
