@@ -6,16 +6,17 @@ PageManager:
 <HomePage>:
     name: "home"
     GridLayout:
-        padding:10
+        padding:5
         cols:1
 
         GridLayout:
             size_hint: 1, 0.15
             cols:2
+            Image:
+                size: self.texture_size
+                source:'img/logo.png'
             Button:
-                text: 'logo'
-            Button:
-                size_hint: 0.2, 1
+                size_hint: 0.3, 1
                 text: 'Войти'
 
         GridLayout:
@@ -23,6 +24,7 @@ PageManager:
             BoxLayout:
                 size_hint: 1, 0.1
                 Label:
+                    background_color: [1,0.1,1,1]
                     font_size: 20
                     text: "ПОКАЗАНИЯ СЧЁТЧИКА"
 
@@ -33,30 +35,41 @@ PageManager:
                     font_size: 20
                     text: '>>>'
                 TextInput:
+                    font_size: 22
                     multiline: "False"
                 Label:
                     font_size: 20
                     text: '<<<'
 
             BoxLayout:
-                padding: 10
-                spacing: 5
-                orientation: "vertical"
-                rows: 2
-                size_hint: 1, 0.2
+                size_hint: 1, 0.1
                 Label:
+                    background_color: [1,0.1,1,1]
+                    font_size: 20
                     text: "ВРЕМЯ ЗВУЧАНИЯ"
-                    font_size: 20
+
+            GridLayout:
+                size_hint: 1, 0.1
+                cols:2
                 Label:
-                    text: "00:00"
                     font_size: 20
+                    text: 'СТОРОНЫ:'
+                Label:
+                    font_size: 20
+                    text: 'КАССЕТЫ:'
+            BoxLayout:
+                cols:2
+                size_hint: 1, 0.15
+                Button:
+
+                Button:
 
             GridLayout:
                 spacing: 20
                 cols:1
                 Button:
                     text: 'DIGITS\n  GRID'
-                    font_size: 80
+                    font_size: 50
 
         BoxLayout:
             size_hint: 1, 0.1
@@ -78,16 +91,33 @@ PageManager:
 <DataPage>:
     name:"data"
     GridLayout:
-        cols:2
-        Button:
-            text: ''
-            on_press:
-                app.root.current = 'home'
-        Button:
-            text: 'Назад'
-            on_press:
-                app.root.current = 'home'
-                root.manager.transition.direction = 'right'
+        cols:1
+        GridLayout:
+            padding: 5
+            size_hint: 1, 0.06
+            cols:2
+            Button:
+                size: self.texture_size
+                background_color: [1,0.8,0.5,1]
+                size_hint: 0.3, 1
+                text: '<<< Назад'
+                on_press:
+                    app.root.current = 'home'
+                    root.manager.transition.direction = 'right'
+            Label:
+                background_color: 1, 1, 1, 1
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
+                text: 'БАЗА ДАННЫХ'
+                bold: False
+
+        GridLayout:
+            rows:2
+            Button:
+                text: "Ещё база"
+            Button:
+                text: 'Текущая база данных'
 
 <SettingsPage>:
     name:"settings"
