@@ -2,6 +2,7 @@ PageManager:
     HomePage:
     DataPage:
     SettingsPage:
+    DataScroll:
 
 <HomePage>:
     name: "home"
@@ -10,7 +11,7 @@ PageManager:
         cols:1
 
         GridLayout:
-            size_hint: 1, 0.15
+            size_hint: 1, 0.14
             cols:2
             Image:
                 size: self.texture_size
@@ -25,7 +26,7 @@ PageManager:
                 size_hint: 1, 0.1
                 Label:
                     background_color: [1,0.1,1,1]
-                    font_size: 20
+                    font_size: 18
                     text: "ПОКАЗАНИЯ СЧЁТЧИКА"
 
             GridLayout:
@@ -98,9 +99,12 @@ PageManager:
             cols:2
             Button:
                 size: self.texture_size
-                background_color: [1,0.8,0.5,1]
-                size_hint: 0.3, 1
+                background_color: [1,0,0,1]
+                size_hint: 0.35, 1
                 text: '<<< Назад'
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
                 on_press:
                     app.root.current = 'home'
                     root.manager.transition.direction = 'right'
@@ -113,20 +117,75 @@ PageManager:
                 bold: False
 
         GridLayout:
-            rows:2
-            Button:
-                text: "Ещё база"
-            Button:
-                text: 'Текущая база данных'
-
+            cols:2
+            #padding: 5
+            size_hint: 1, 0.15
+            Label:
+                text: "Текущая база данных:"
+            Label:
+                text: "АЭЛИТА PM"
+            Label:
+                text: "Магнитофонов в базе:"
+            Label:
+                text: "1"
+        BoxLayout:
+            cols:1
+            ScrollView:
+                size_hint_y: .75
+                pos_hint:{'x':0, 'y':0.10}
+                do_scrol_x: False
+                do_scrol_y: True
+                GridLayout:
+                    cols:1
+                    size:(root.width, root.height)
+                    size_hint_x: None
+                    size_hint_y: None
+                    cols: 1
+                    height: self.minimum_height
+                    Label:
+                        text: 'text'
 <SettingsPage>:
     name:"settings"
     GridLayout:
-        cols:2
-        Button:
-            text: 'Настройки'
-        Button:
-            text: 'Назад'
-            on_press:
-                app.root.current = 'home'
-                root.manager.transition.direction = 'right'
+        cols:1
+        GridLayout:
+            padding: 5
+            size_hint: 1, 0.06
+            cols:2
+            Button:
+                size: self.texture_size
+                background_color: [1,0,0,1]
+                size_hint: 0.35, 1
+                text: '<<< Назад'
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+                on_press:
+                    app.root.current = 'home'
+                    root.manager.transition.direction = 'right'
+            Label:
+                background_color: 1, 1, 1, 1
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
+                text: 'НАСТРОЙКИ'
+                bold: False
+        BoxLayout:
+            cols:1
+            ScrollView:
+                size_hint_y: .75
+                pos_hint:{'x':0, 'y':0.10}
+                do_scrol_x: False
+                do_scrol_y: True
+                GridLayout:
+                    cols:1
+                    size:(root.width, root.height)
+                    size_hint_x: None
+                    size_hint_y: 1.5
+                    cols: 1
+                    height: self.minimum_height
+                    Label:
+                        text: 'Настройки'
+
+
+

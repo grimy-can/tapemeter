@@ -3,7 +3,8 @@ from datetime import timedelta, datetime
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-
+from kivy.core.window import Window
+Window.size = (360, 640)
 
 
 def len_cal(dic):
@@ -60,6 +61,10 @@ class DataPage(Screen):
 
 
 class SettingsPage(Screen):
+    pass
+
+
+class DataScroll(Screen):
     pass
 
 
