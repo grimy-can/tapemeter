@@ -1,9 +1,9 @@
+from kivy.uix.widget import Widget
 from openpyxl import Workbook
 from datetime import timedelta, datetime
-from kivy.app import App
+from kivy.properties import ObjectProperty
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-
 
 
 def len_cal(dic):
@@ -26,7 +26,6 @@ ws = wb.active
 ws.title = "Tapemeter Database"
 ws.sheet_properties.tabColor = "1072BA"
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
-
 tapemeter_dtb, file_mode = dict(), ''
 with open("tapemeter.dtb", "r") as file:
     cassettes = 0
@@ -51,29 +50,4 @@ with open("tapemeter.dtb", "r") as file:
                  f"{cassettes} шт."
 
 
-class HomePage(Screen):
-    pass
 
-
-class DataPage(Screen):
-    pass
-
-
-class SettingsPage(Screen):
-    pass
-
-
-class PageManager(ScreenManager):
-    pass
-
-
-gui = Builder.load_file("kvcode.kv")
-
-
-class TapeApp(App):
-    def build(self):
-        return gui
-
-
-if __name__ == "__main__":
-    TapeApp().run()

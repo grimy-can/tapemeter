@@ -1,0 +1,102 @@
+PageManager:
+    HomePage:
+    DataPage:
+    SettingsPage:
+
+<HomePage>:
+    name: "home"
+    GridLayout:
+        padding:10
+        cols:1
+
+        GridLayout:
+            size_hint: 1, 0.15
+            cols:2
+            Button:
+                text: 'logo'
+            Button:
+                size_hint: 0.2, 1
+                text: 'Войти'
+
+        GridLayout:
+            cols:1
+            BoxLayout:
+                size_hint: 1, 0.1
+                Label:
+                    font_size: 20
+                    text: "ПОКАЗАНИЯ СЧЁТЧИКА"
+
+            GridLayout:
+                size_hint: 1, 0.1
+                cols:3
+                Label:
+                    font_size: 20
+                    text: '>>>'
+                TextInput:
+                    multiline: "False"
+                Label:
+                    font_size: 20
+                    text: '<<<'
+
+            BoxLayout:
+                padding: 10
+                spacing: 5
+                orientation: "vertical"
+                rows: 2
+                size_hint: 1, 0.2
+                Label:
+                    text: "ВРЕМЯ ЗВУЧАНИЯ"
+                    font_size: 20
+                Label:
+                    text: "00:00"
+                    font_size: 20
+
+            GridLayout:
+                spacing: 20
+                cols:1
+                Button:
+                    text: 'DIGITS\n  GRID'
+                    font_size: 80
+
+        BoxLayout:
+            size_hint: 1, 0.1
+            cols:3
+            spacing:10
+            Button:
+                text:'База данных'
+                on_press:
+                    app.root.current = 'data'
+                    root.manager.transition.direction = 'left'
+            Button:
+                text:'Настройки'
+                on_press:
+                    app.root.current = 'settings'
+                    root.manager.transition.direction = 'left'
+            Button:
+                text:'Выход'
+
+<DataPage>:
+    name:"data"
+    GridLayout:
+        cols:2
+        Button:
+            text: ''
+            on_press:
+                app.root.current = 'home'
+        Button:
+            text: 'Назад'
+            on_press:
+                app.root.current = 'home'
+                root.manager.transition.direction = 'right'
+
+<SettingsPage>:
+    name:"settings"
+    GridLayout:
+        cols:2
+        Button:
+            text: 'Настройки'
+        Button:
+            text: 'Назад'
+            on_press:
+                app.root.current = 'home'
+                root.manager.transition.direction = 'right'
