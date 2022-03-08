@@ -6,76 +6,64 @@ PageManager:
 
 <HomePage>:
     name: "home"
-    GridLayout:
-        padding:5
-        cols:1
 
+    FloatLayout:
+        Button:
+            pos_hint: {"x":0, "top": 1}
+            text: "LOGO"
+            size_hint: .8, .13
+        Button:
+            text: "Войти"
+            size_hint: .2, .13
+            pos_hint: {"x":.8, "top": 1}
+        Button:
+            text: "ПОКАЗАНИЯ СЧЁТЧИКА"
+            pos_hint: {'x': 0, 'top': .87}
+            size_hint: 1, .07
+        Button:
+            text: ">>>"
+            pos_hint: {'x': 0, 'top': .8}
+            size_hint: .33, .07
+        Button:
+            text: "0000"
+            pos_hint: {'x': 0.33, 'top': .8}
+            size_hint: .34, .07
+        Button:
+            text: "<<<"
+            pos_hint: {'x': 0.67, 'top': .8}
+            size_hint: .33, .07
+        Button:
+            text: "ВРЕМЯ ЗВУЧАНИЯ"
+            pos_hint: {'x': 0, 'top': .73}
+            size_hint: 1, .07
+        Button:
+            text: "СТОРОНА"
+            pos_hint: {'x': .5, 'top': .66}
+            size_hint: .5, .07
+        Button:
+            text: "КАССЕТА"
+            pos_hint: {'x': 0, 'top': .66}
+            size_hint: .5, .07
+        Button:
+            text: "92:46"
+            pos_hint: {'x': .5, 'top': .59}
+            size_hint: .5, .07
+        Button:
+            text: "46:23"
+            pos_hint: {'x': 0, 'top': .59}
+            size_hint: .5, .07
         GridLayout:
-            size_hint: 1, 0.14
-            cols:2
-            Image:
-                size: self.texture_size
-                source:'img/logo.png'
-            Button:
-                size_hint: 0.3, 1
-                text: 'Войти'
-
-        GridLayout:
+            pos_hint: {'x': 0, 'y': 0.12}
+            size_hint: 1, 0.4
+            spacing: 20
             cols:1
-            BoxLayout:
-                size_hint: 1, 0.1
-                Label:
-                    background_color: [1,0.1,1,1]
-                    font_size: 18
-                    text: "ПОКАЗАНИЯ СЧЁТЧИКА"
-
-            GridLayout:
-                size_hint: 1, 0.1
-                cols:3
-                Label:
-                    font_size: 20
-                    text: '>>>'
-                TextInput:
-                    font_size: 22
-                    multiline: "False"
-                Label:
-                    font_size: 20
-                    text: '<<<'
-
-            BoxLayout:
-                size_hint: 1, 0.1
-                Label:
-                    background_color: [1,0.1,1,1]
-                    font_size: 20
-                    text: "ВРЕМЯ ЗВУЧАНИЯ"
-
-            GridLayout:
-                size_hint: 1, 0.1
-                cols:2
-                Label:
-                    font_size: 20
-                    text: 'СТОРОНЫ:'
-                Label:
-                    font_size: 20
-                    text: 'КАССЕТЫ:'
-            BoxLayout:
-                cols:2
-                size_hint: 1, 0.15
-                Button:
-
-                Button:
-
-            GridLayout:
-                spacing: 20
-                cols:1
-                Button:
-                    text: 'DIGITS\n  GRID'
-                    font_size: 50
-
+            Button:
+                text: 'DIGITS\n  GRID'
+                font_size: 50
         BoxLayout:
-            size_hint: 1, 0.1
+            pos_hint: {'x': 0, 'y': 0}
+            size_hint: 1, 0.12
             cols:3
-            spacing:10
             Button:
                 text:'База данных'
                 on_press:
