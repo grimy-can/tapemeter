@@ -1,22 +1,30 @@
-
-from kivy.core.text import Label as CoreLabel
 from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.widget import Widget
+from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
 
-my_label = CoreLabel()
-my_label.text = 'hello'
-# the label is usually not drawn until needed, so force it to draw.
-my_label.refresh()
-# Now access the texture of the label and use it wherever and
-# however you may please.
-hello_texture = my_label.texture
+Builder.load_string("""
+<ButtonsApp>:
+    orientation: "vertical"
+    Button:
+        StackLayout:
+            pos: self.parent.pos
+            size: self.parent.size
+            orientation: 'lr-tb'
+            Image:
+                source: 'img/login_1.png'
+                size_hint_x: None
+                width: 74
+            Label:
+                size_hint_x: None
+                width: 100
+                text: "The text"
+    Label:
 
+""")
 
-class MyApp(App):
+class ButtonsApp(App, BoxLayout):
     def build(self):
-        return Button(text='Hello')
-
+        return self
 
 if __name__ == "__main__":
-    MyApp().run()
+    ButtonsApp().run()

@@ -53,7 +53,10 @@ with open("tapemeter.dtb", "r") as file:
 
 
 class HomePage(Screen):
-    pass
+    def login_btn_press(self):
+        self.ids.login_img1.source = 'img/login_2.png'
+    def login_btn_rel(self):
+        self.ids.login_img1.source = 'img/login_1.png'
 
 
 class DataPage(Screen):

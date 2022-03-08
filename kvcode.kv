@@ -8,14 +8,32 @@ PageManager:
     name: "home"
 
     FloatLayout:
-        Button:
+        Image:
+            source:'img/logo.png'
             pos_hint: {"x":0, "top": 1}
             text: "LOGO"
-            size_hint: .8, .13
-        Button:
-            text: "Войти"
+            size_hint: .8, .15
+        Label:
             size_hint: .2, .13
             pos_hint: {"x":.8, "top": 1}
+            text: "Войти"
+            font_size: (root.width + root.height) / 60
+        Button:
+            size_hint: .2, .13
+            pos_hint: {"x":.8, "top": 1}
+            background_color: 0,0,0,0
+            on_press: root.login_btn_press()
+            on_release: root.login_btn_rel()
+            Image:
+                id: login_img1
+                size_hint_y: None
+                size_hint_x: None
+                height: root.height / 5
+                width: root.width / 5
+                source:'img/login_1.png'
+                center_x:self.parent.center_x
+                center_y:self.parent.center_y
+
         Button:
             text: "ПОКАЗАНИЯ СЧЁТЧИКА"
             pos_hint: {'x': 0, 'top': .87}
