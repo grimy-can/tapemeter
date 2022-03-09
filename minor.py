@@ -12,7 +12,8 @@ from openpyxl.styles import Font
 
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
-
+wb = load_workbook('data/database.xlsx')
+current_base = wb.sheetnames[0]
 
 def len_cal(dic):
     """average tape time calculation"""
@@ -24,13 +25,6 @@ def len_cal(dic):
         total_t += time_d
     one_turn = total_t / total_c
     return one_turn
-
-
-def random_color():
-    # generate random color for new worksheet
-    hexadecimal = [
-        "#" + ''.join([random.choice('ABCDEF0123456789') for i in range(6)])]
-    return hexadecimal
 
 
 def settings_read():
@@ -52,8 +46,8 @@ def settings_read():
             f = open("settings.bin", "wb")
             settings = {'first_name': None,
                         'last_name': None,
-                        'company': 'Grimy Can"',
-                        'model': None,
+                        'company': 'Grimy Can',
+                        'model': current_base,
                         'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
                         'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2',
                         'database_size': None,
@@ -72,7 +66,7 @@ def get_drive_dir_info():
     # http://datalytics.ru/all/rabotaem-s-api-google-drive-s-pomoschyu-python/"
     pp = pprint.PrettyPrinter(indent=4)
     SCOPES = ['https://www.googleapis.com/auth/drive']
-    SERVICE_ACCOUNT_FILE = 'tapemeter-f7aa8f317868.json'
+    SERVICE_ACCOUNT_FILE = 'key.json'
     credentials = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     service = build('drive', 'v3', credentials=credentials)
@@ -123,6 +117,9 @@ with open("tapemeter.dtb", "r") as file:
         count_one = len_cal(tapemeter_dtb)
         print(f"Average duration of one rotation \n"
               f"of the counter is {count_one}")
+
+
+settings_read()
 
 
 choise = input("""Choose option:

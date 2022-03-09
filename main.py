@@ -1,10 +1,18 @@
-from openpyxl import Workbook
+from openpyxl import load_workbook
 from datetime import timedelta, datetime
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+import pickle
+
 Window.size = (360, 640)
+
+
+now = datetime.today().strftime('%Y-%m-%d')  # Current date
+with open("settings.bin", "rb") as f:
+    settings = pickle.load(f)
+
 
 
 def len_cal(dic):
@@ -19,14 +27,9 @@ def len_cal(dic):
     return one_turn
 
 
-grey = [1, 1, 1]
-lilac = [2, 0, 3]
-blue = [1, 1, 3]
-wb = Workbook()
-ws = wb.active
-ws.title = "Tapemeter Database"
-ws.sheet_properties.tabColor = "1072BA"
-now = datetime.today().strftime('%Y-%m-%d')  # Current date
+wb = load_workbook('data/database.xlsx')
+current_base = wb.sheetnames[0]
+
 
 tapemeter_dtb, file_mode = dict(), ''
 with open("tapemeter.dtb", "r") as file:
@@ -53,10 +56,27 @@ with open("tapemeter.dtb", "r") as file:
 
 
 class HomePage(Screen):
+    Screen.current_base = current_base
     def login_btn_press(self):
         self.ids.login_img1.source = 'img/login_2.png'
+
     def login_btn_rel(self):
         self.ids.login_img1.source = 'img/login_1.png'
+
+    def calculator(self, value):
+        if value:
+            tape_len = (count_one * int(value))\
+                       * 2 - timedelta(minutes=0,seconds=20)
+            # get rid from microseconds:
+            tape_side = tape_len / 2
+            tape_len = tape_len - timedelta(
+                microseconds=tape_len.microseconds)
+            tape_side = tape_side - timedelta(
+                microseconds=tape_side.microseconds)
+            self.display_cass.text = str(tape_len)
+            self.display_side.text = str(tape_side)
+
+
 
 
 class DataPage(Screen):
