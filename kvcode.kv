@@ -1,3 +1,5 @@
+#: import utils kivy.utils
+
 PageManager:
     HomePage:
     DataPage:
@@ -18,21 +20,15 @@ PageManager:
     display_model: model
 
     FloatLayout:
-        Label:
-            size_hint: .2, .03
-            pos_hint: {"x":.8, "top": .894}
-            text: "ВОЙТИ"
-            font_size:(root.width + root.height) / 100
         Image:
             source:'img/logo.png'
             pos_hint: {"x":0, "top": 1}
             text: "LOGO"
             size_hint: .8, .15
-
         Button:
+            background_color:(0,0,0,0)
             size_hint: .2, .13
             pos_hint: {"x":.8, "top": 1}
-            background_color: 0,0,0,0
             on_press: root.login_btn_press()
             on_release: root.login_btn_rel()
             Image:
@@ -44,6 +40,15 @@ PageManager:
                 source:'img/login_1.png'
                 center_x:self.parent.center_x
                 center_y:self.parent.center_y
+        Label:
+            size_hint: .2, .03
+            pos_hint: {"x":.8, "top": .898}
+            text: "ВОЙТИ"
+            font_size:(root.width + root.height) / 100
+            color: (0,0,0,1)
+            bold: False
+            outline_color: (1,1,1,1)
+            outline_width:1
 
         Button:
             id: model
@@ -53,12 +58,29 @@ PageManager:
             size_hint: 1, .07
         Button:
             text: ">>>"
+            text_color: utils.get_color_from_hex('#FF5733')
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .8}
             size_hint: .33, .07
-        TextInput:
+            on_press: entry.text = ""
+            on_press: cass.text = ""
+            on_press: side.text = ""
+        Label:
             id: entry
-            font_size: (root.width + root.height) / 40
+            background_color: (240/255, 148/255,22/255, 1)
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            # text Properties
+            color: (0,0,0,1)
+            bold: False
+            outline_color: (1,1,1,1)
+            outline_width:1
+
+            font_size: (root.width + root.height) / 30
             multiline: False
             pos_hint: {'x': 0.33, 'top': .8}
             size_hint: .34, .07
@@ -67,12 +89,16 @@ PageManager:
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0.67, 'top': .8}
             size_hint: .33, .07
+            on_press: entry.text = ""
+            on_press: side.text = ""
+            on_press: cass.text = ""
         Button:
             text: "ВРЕМЯ ЗВУЧАНИЯ"
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .73}
             size_hint: 1, .07
             on_press: root.calculator(entry.text)
+
         Button:
             text: "СТОРОНА"
             font_size: (root.width + root.height) / 45
@@ -135,8 +161,8 @@ PageManager:
                 text: "0"
                 on_press: entry.text += self.text
             CustButton:
-                text: "Clear"
-                on_press: entry.text = ""
+                text: "<|"
+                on_press: entry.text = entry.text[0:-1]
 
 
         BoxLayout:
@@ -192,11 +218,13 @@ PageManager:
             Label:
                 text: "Текущая база данных:"
             Label:
-                text: "АЭЛИТА PM"
+                id: model
+                text:root.current_base
             Label:
                 text: "Магнитофонов в базе:"
             Label:
-                text: "1"
+                id: models
+                text:root.base_models
         BoxLayout:
             cols:1
             ScrollView:

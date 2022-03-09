@@ -8,11 +8,9 @@ import pickle
 
 Window.size = (360, 640)
 
-
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("settings.bin", "rb") as f:
     settings = pickle.load(f)
-
 
 
 def len_cal(dic):
@@ -29,6 +27,7 @@ def len_cal(dic):
 
 wb = load_workbook('data/database.xlsx')
 current_base = wb.sheetnames[0]
+base_models = str(len(wb.sheetnames))
 
 
 tapemeter_dtb, file_mode = dict(), ''
@@ -57,6 +56,8 @@ with open("tapemeter.dtb", "r") as file:
 
 class HomePage(Screen):
     Screen.current_base = current_base
+    Screen.base_models = base_models
+
     def login_btn_press(self):
         self.ids.login_img1.source = 'img/login_2.png'
 
@@ -66,7 +67,7 @@ class HomePage(Screen):
     def calculator(self, value):
         if value:
             tape_len = (count_one * int(value))\
-                       * 2 - timedelta(minutes=0,seconds=20)
+                       * 2 - timedelta(minutes=0, seconds=20)
             # get rid from microseconds:
             tape_side = tape_len / 2
             tape_len = tape_len - timedelta(
@@ -75,8 +76,8 @@ class HomePage(Screen):
                 microseconds=tape_side.microseconds)
             self.display_cass.text = str(tape_len)
             self.display_side.text = str(tape_side)
-
-
+        else:
+            pass
 
 
 class DataPage(Screen):
