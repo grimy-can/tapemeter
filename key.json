@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "tapemeter",
+  "private_key_id": "f7aa8f317868babe8b0c368a6147c17e2be57a58",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC79IHDI3/m0BcZ\n9gm2KWeY9GDfLCelNjq1nJYA7Vhg/2N/D4ZBJgpnWTo3DWC2AllOQMOtCFBHf4Kj\n/x6Y+nYkSML00i1GY/b3RfjjWB3szpXg0kFe2BqBxv9gsuEK5OdsY80ADzSAQW8C\nJXusIAa6RF6IaGHsGCXfemx2BugBc/eWlw/FAM/tNpPzWio6Dbuap3Zh6DFkQONW\nyHu/SXl+roQQa6qwKfpNFqjVTIOwCOiK/KShiE4yW8DSISQvLmtVU2AYFC7adHnB\njnw3Hbbori5yMX3KdfqHggutAfDdPxpOCw8hLNVw9B7Gnxul9AL67L5NpgFEIARl\nXy3PVkLfAgMBAAECggEANN2pj/sQsxmtncI76g5MUtPN2YfgYNJXghSYhos7tBCx\naiAyOWnbPEV3H9v160vO1blWsHkpp2qgksMj1pCAIWWL3HOvg2CDqvp17nAu/pf+\nxR0ugOBU2FLiKs81iCxpQW3yz8T3FeoRsK9dUUUyzzqCwmhlvpPuNyUGk84OfLWm\nxg6+Q4RQd8m+7cnH+WY0WqfQMxIGkAc5Yzl16Om4JyPrVX0Ex7V2Y5OR8Qxcc09H\nWFg3QOOa0QP4QkEQ3VxzvMJDfbsU1SpNwgYfaptHZBhKOI/yJ52wpaOYhTuOmaEa\nUaUqCLCxzHFQIRe+/OLNV90S7hGV9URU2ul9bNM/4QKBgQD4C19dtcViK+Uztu4U\negpJxrqHelNDIMZvZUF/2evyCQ7gDkTVEQXQxnXL/C7ZbU8GVsaz6vG+/Hn9viiV\nQMm65qKe4kVrAI4TOuLn+usoJqMpGkuD7UJe8gJMAL6f6yxR0ni6TqM6fqCsPiGN\n+oLey5LogDBAK4yWbdQ1DBhsPwKBgQDB+8G8Q22eipqlDKU49b/pce5hKvK6DwqG\nkxl9sxxWzj9Qxf3x9qF6H3pEsvnT5pWnveET6QmRar3dhGbW4LWgLIBaN/kg9xVO\ntgBZytJyi/fy1wgRRWH9PPYQMk54a0FQlhOd78ESuDtfOTpQj80hdCbrJyy32xHn\nV7QvmBcBYQKBgQC7MzINMmM+fSxlRDkYgSaEmZQrLRnrvq+kYMH3MMvOhiGQ3ZP7\nTfaaoz1B7xiYhdOvUAx0uusqHbgf1cUhJ51YDjpLOS/02p1fTAD13TxeuBJJsguu\nDIEb0QAExkcXwFBZjEQLL9AnFGxEsjt2wMrGRNOh3yULORLIcSlHw9Im1wKBgQCS\nIvOEvNdsRMbT6H7gNmLpnycSlKRffs1TLKZbh/+ldaNFWqNBEaf8tJIMBzkmZeQA\nho91zG2k22FF7GT9JDQwAtZ/IQPRzdKDhaEmBCIeoUud6ljtifOUL8S/1uY+2a5O\n44DLzr8JNzmjNx2za2IB/dsD9HM/3w3R1sSrxkwugQKBgDHvpR8nmTR9KdYSe8Dm\n6OpFdUC/64SgL/l40kyfwrIz7F7fzgnlqLpLIWoV9UA12zjDUXX8Dzu7PJf/G791\neHXCXDCZZ/nsUaU3IEoAYJN7QIEoBsKPKgabixGfWz/UMsYfD2DnCNh/sovLtW7q\nkjHaey4nvLXGulp5UP+jz0lV\n-----END PRIVATE KEY-----\n",
+  "client_email": "python@tapemeter.iam.gserviceaccount.com",
+  "client_id": "109476836774719924997",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/python%40tapemeter.iam.gserviceaccount.com"
+}
