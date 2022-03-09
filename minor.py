@@ -1,13 +1,17 @@
 from openpyxl import Workbook
-from openpyxl.styles import Font, Color
+from openpyxl import load_workbook
+from openpyxl.comments import Comment
 from datetime import timedelta, datetime
 import random
 import pickle
 from google.oauth2 import service_account
-from googleapiclient.http import MediaIoBaseDownload,MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from googleapiclient.discovery import build
 import pprint
-import io
+from openpyxl.styles import Font
+
+
+now = datetime.today().strftime('%Y-%m-%d')  # Current date
 
 
 def len_cal(dic):
@@ -47,13 +51,13 @@ def settings_read():
         if warn == '1':
             f = open("settings.bin", "wb")
             settings = {'first_name': None,
-                'last_name': None,
-                'company': 'Grimy Can"',
-                'model': None,
-                'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
-                'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2',
-                'database_size': None,
-                'database_date': None}
+                        'last_name': None,
+                        'company': 'Grimy Can"',
+                        'model': None,
+                        'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
+                        'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2',
+                        'database_size': None,
+                        'database_date': None}
             pickle.dump(settings, f)
             print("Настройки сброшены.")
         else:
@@ -63,21 +67,41 @@ def settings_read():
 
 
 # work with API Google Drive"
-def get_GD_dir_info():
+def get_drive_dir_info():
     # work with API Google Drive
     # http://datalytics.ru/all/rabotaem-s-api-google-drive-s-pomoschyu-python/"
     pp = pprint.PrettyPrinter(indent=4)
     SCOPES = ['https://www.googleapis.com/auth/drive']
     SERVICE_ACCOUNT_FILE = 'tapemeter-f7aa8f317868.json'
     credentials = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     service = build('drive', 'v3', credentials=credentials)
     results = service.files().list(pageSize=10,
-              fields="nextPageToken, files(id, name, mimeType)").execute()
+                                   fields="nextPageToken, "
+                                          "files("
+                                          "id, name, mimeType)").execute()
 
     pp.pprint(results)
+
+
 # create a file on the filesystem with openpyxl
 # and with one worksheet & set it's name:
+def create_database():
+    wbook = load_workbook('data/database.xlsx')
+    wsheet = wbook.create_sheet(input("Введите модель магнитофона:\n"))
+    wsheet.sheet_properties.tabColor = "0000FF00"
+    # wbook.save('data/database.xlsx')
+    wsheet.merge_cells('A1:C2')
+    wsheet['A1'].comment = Comment(f"База создана {now}", 'Tapemeter')
+    wsheet["A1"].style = '20 % - Accent5'
+    wsheet["A3"] = "Счётчик:"
+    wsheet["B3"] = "Время:"
+    wsheet["C3"] = "Дата:"
+    wsheet["A3"].style = '20 % - Accent1'
+    wsheet["B3"].style = '20 % - Accent1'
+    wsheet["C3"].style = '20 % - Accent1'
+    wbook.save('data/database.xlsx')
+
 
 
 # open database file with stored data and get one turn:
@@ -99,9 +123,7 @@ with open("tapemeter.dtb", "r") as file:
         count_one = len_cal(tapemeter_dtb)
         print(f"Average duration of one rotation \n"
               f"of the counter is {count_one}")
-now = datetime.today().strftime('%Y-%m-%d')  # Current date
 
-settings_read()
 
 choise = input("""Choose option:
 1 - Добавить счётчик в базу
@@ -134,8 +156,7 @@ if choise == '1':
 
 elif choise == '2':
     read_count = int(input("Enter counter : "))
-    tape_len = (count_one * read_count) * 2 \
-        - timedelta(minutes=0, seconds=20)
+    tape_len = (count_one * read_count) * 2 - timedelta(minutes=0, seconds=20)
     # get rid from microseconds:
     tape_len = tape_len - timedelta(
         microseconds=tape_len.microseconds)
@@ -151,13 +172,13 @@ elif choise == '4':
     wb = Workbook()
     ws = wb.active
     ws.title = model
-    ws.sheet_properties.tabColor = random_color()
+    ws.sheet_properties.tabColor = "ff0000"
     ws.merge_cells('A1:F1')
     ws["A1"].style = 'Accent6'
     ws["A1"].font = Font(size=12, bold=True)
     ws.cell(1, 1).value = f"Счётчик ленты магнитофона {model}"
-    ws.cell(1, 1).comment = f"Database has been created: \n" \
-                            f"{datetime.today().strftime('%H-%M')}"
+    ws.cell(1, 1).comment = Comment(f"Database has been created: \
+                          n{datetime.today().strftime('%H-%M')}", "Tapemeter")
     ws["A2"], ws["B2"] = "Счётчик", "Время"
     ws["B2"].font = Font(size=12, bold=True)
     ws["B2"].style = 'Accent3'
@@ -167,7 +188,7 @@ elif choise == '4':
     ws.merge_cells('G3:H3')
     ws.merge_cells('G4:H4')
     ws["G1"] = "Database has been created:"
-    ws["G2"] = f"{now} at {datetime.today().strftime('%H-%M')}"
+    ws["G2"] = f"{now}"
     ws["G3"] = "Database have been updated:"
     ws["G4"] = ""
     ws["G1"].style = '20 % - Accent1'
