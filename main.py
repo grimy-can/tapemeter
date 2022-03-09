@@ -6,7 +6,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 import pickle
 
-Window.size = (360, 640)
+# Window.size = (360, 640)
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("settings.bin", "rb") as f:
