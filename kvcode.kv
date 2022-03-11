@@ -55,6 +55,9 @@ PageManager:
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .87}
             size_hint: 1, .07
+            on_press:
+                app.root.current = 'data'
+                root.manager.transition.direction = 'left'
         Button:
             id: delete_left
             text: ">>>"
@@ -200,20 +203,19 @@ PageManager:
 
         BoxLayout:
             padding: 10
-            spacing: 10
-            pos_hint: {'x': 0, 'y': 0}
-            size_hint: 1, 0.12
-            cols:3
-            MenuButton:
-                text:'База данных'
-                on_press:
-                    app.root.current = 'data'
-                    root.manager.transition.direction = 'left'
-            MenuButton:
-                text:'Настройки'
-                on_press:
-                    app.root.current = 'settings'
-                    root.manager.transition.direction = 'left'
+            pos_hint: {'x': 0.25, 'y': 0}
+            size_hint: 0.5, 0.1
+            cols:1
+#            MenuButton:
+#                text:'База данных'
+#                on_press:
+#                    app.root.current = 'data'
+#                    root.manager.transition.direction = 'left'
+#            MenuButton:
+#                text:'Настройки'
+#                on_press:
+#                    app.root.current = 'settings'
+#                    root.manager.transition.direction = 'left'
             MenuButton:
                 text:'Выход'
                 on_press: app.stop()
