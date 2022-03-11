@@ -6,15 +6,11 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 import pickle
 
-# Window.size = (360, 640)
-
-now = datetime.today().strftime('%Y-%m-%d')  # Current date
-with open("settings.bin", "rb") as f:
-    settings = pickle.load(f)
+Window.size = (360, 640)
 
 
-def len_cal(dic):
-    """average tape time calculation"""
+def cal_average(dic):
+    """average tape time calculation from database"""
     total_t = timedelta(minutes=0)
     total_c = sum(map(int, dic.keys()))
     for t in dic.values():
@@ -25,38 +21,28 @@ def len_cal(dic):
     return one_turn
 
 
-wb = load_workbook('data/database.xlsx')
-current_base = wb.sheetnames[0]
-base_models = str(len(wb.sheetnames))
-
-
-tapemeter_dtb, file_mode = dict(), ''
-with open("tapemeter.dtb", "r") as file:
-    cassettes = 0
-    for line in file:
-        if line.strip().startswith('No'):
-            print("No data so far")
-            file_mode = 'w'
-            break
-        elif line.strip().startswith('The'):
-            continue
-        else:
-            cassettes += 1
-            new_data = list(line.split("="))
-            tapemeter_dtb[str(new_data[0])] = \
-                datetime.strptime(new_data[1].strip(), '%H:%M:%S')
-    if len(tapemeter_dtb) > 0:
-        file_mode = 'a'
-        count_one = len_cal(tapemeter_dtb)
-        text_1 = f"1 count = \n" \
-                 f"{count_one.total_seconds()} sec"
-        text_2 = f"Кассет в базе: \n" \
-                 f"{cassettes} шт."
+now = datetime.today().strftime('%Y-%m-%d')  # Current date
+with open("settings.bin", "rb") as f:
+    settings = pickle.load(f)
+if settings['model'] is not None:
+    wb = load_workbook('data/database.xlsx')
+    base_models = str(len(wb.sheetnames))
+    ws = wb[settings['model']]
+    tapemeter = dict()
+    for row in ws.iter_rows(min_row=4, max_col=2, values_only=True):
+        tapemeter[row[0]] = row[1]
+    count_one = cal_average(tapemeter)
+    current_base = settings['model']
+else:
+    base_models = 0
+    count_one = timedelta(0, 0, 0)
+    current_base = "Выбрать базу данных"
 
 
 class HomePage(Screen):
     Screen.current_base = current_base
     Screen.base_models = base_models
+    Screen.count_one = str(count_one.total_seconds()) + ' сек.'
 
     def login_btn_press(self):
         self.ids.login_img1.source = 'img/login_2.png'
@@ -64,8 +50,8 @@ class HomePage(Screen):
     def login_btn_rel(self):
         self.ids.login_img1.source = 'img/login_1.png'
 
-    def calculator(self, value):
-        if value:
+    def calculator(self, value, count=count_one):
+        if value and count > timedelta(0, 0, 0):
             tape_len = (count_one * int(value))\
                        * 2 - timedelta(minutes=0, seconds=20)
             # get rid from microseconds:
@@ -77,7 +63,8 @@ class HomePage(Screen):
             self.display_cass.text = str(tape_len)
             self.display_side.text = str(tape_side)
         else:
-            pass
+            self.ids.delete_left.color = (1, 0, 0, 1)
+            self.ids.delete_right.color = (1, 0, 0, 1)
 
 
 class DataPage(Screen):

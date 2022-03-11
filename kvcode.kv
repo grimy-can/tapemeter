@@ -18,7 +18,6 @@ PageManager:
     display_side: side
     display_cass: cass
     display_model: model
-
     FloatLayout:
         Image:
             source:'img/logo.png'
@@ -57,6 +56,7 @@ PageManager:
             pos_hint: {'x': 0, 'top': .87}
             size_hint: 1, .07
         Button:
+            id: delete_left
             text: ">>>"
             text_color: utils.get_color_from_hex('#FF5733')
             font_size: (root.width + root.height) / 45
@@ -79,12 +79,12 @@ PageManager:
             bold: False
             outline_color: (1,1,1,1)
             outline_width:1
-
             font_size: (root.width + root.height) / 30
             multiline: False
             pos_hint: {'x': 0.33, 'top': .8}
             size_hint: .34, .07
         Button:
+            id: delete_right
             text: "<<<"
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0.67, 'top': .8}
@@ -92,33 +92,66 @@ PageManager:
             on_press: entry.text = ""
             on_press: side.text = ""
             on_press: cass.text = ""
+
         Button:
             text: "ВРЕМЯ ЗВУЧАНИЯ"
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .73}
             size_hint: 1, .07
             on_press: root.calculator(entry.text)
+            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
+            on_release: self.background_color = (1, 1, 1, 1)
+            on_release: delete_left.color = (1, 1, 1, 1)
+            on_release: delete_right.color = (1, 1, 1, 1)
 
-        Button:
+        Label:
             text: "СТОРОНА"
+            background_color: (80/255, 80/255, 80/255, 1)
             font_size: (root.width + root.height) / 45
-            pos_hint: {'x': .5, 'top': .66}
+            pos_hint: {'x': .502, 'top': .66}
             size_hint: .5, .07
-        Button:
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
             font_size: (root.width + root.height) / 45
             text: "КАССЕТА"
+            background_color: (80/255, 80/255, 80/255, 1)
             pos_hint: {'x': 0, 'top': .66}
-            size_hint: .5, .07
-        Button:
+            size_hint: .498, .07
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
             id: side
-            font_size: (root.width + root.height) / 45
-            pos_hint: {'x': .5, 'top': .59}
-            size_hint: .5, .07
-        Button:
+            background_color: (80/255, 80/255, 80/255, 1)
+            font_size: (root.width + root.height) / 33
+            pos_hint: {'x': .502, 'top': .59}
+            size_hint: .498, .07
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
             id: cass
-            font_size: (root.width + root.height) / 45
+            background_color: (80/255, 80/255, 80/255, 1)
+            font_size: (root.width + root.height) / 33
             pos_hint: {'x': 0, 'top': .59}
-            size_hint: .5, .07
+            size_hint: .498, .07
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
         GridLayout:
             pos_hint: {'x': 0, 'y': .12}
             size_hint: 1, .4
@@ -183,64 +216,76 @@ PageManager:
                     root.manager.transition.direction = 'left'
             MenuButton:
                 text:'Выход'
+                on_press: app.stop()
 
 <DataPage>:
     name:"data"
-    GridLayout:
-        cols:1
-        GridLayout:
-            padding: 5
-            size_hint: 1, 0.06
-            cols:2
-            Button:
-                size: self.texture_size
-                background_color: [1,0,0,1]
-                size_hint: 0.35, 1
-                text: '<<< Назад'
-                text_size: self.size
-                halign: 'left'
-                valign: 'middle'
-                on_press:
-                    app.root.current = 'home'
-                    root.manager.transition.direction = 'right'
-            Label:
-                background_color: 1, 1, 1, 1
-                text_size: self.size
-                halign: 'right'
-                valign: 'middle'
-                text: 'БАЗА ДАННЫХ'
-                bold: False
+    FloatLayout:
+        Button:
+            pos_hint: {"x":0, "top": 1}
+            size_hint: 0.35, 0.05
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            text_color:
+            size: self.texture_size
+            text: '  <<< Назад'
+            text_size: self.size
+            font_size: (root.width + root.height) / 70
+            halign: 'left'
+            valign: 'middle'
+            on_press:
+                app.root.current = 'home'
+                root.manager.transition.direction = 'right'
+        Label:
+            pos_hint: {"x":0.35, "top": 1}
+            size_hint: 0.65, 0.05
+            background_color: (240/255, 148/255,22/255, 1)
+            font_size: (root.width + root.height) / 70
+            text_size: self.size
+            color: (0,0,0,1)
+            halign: 'right'
+            valign: 'middle'
+            text: 'БАЗА ДАННЫХ  '
+            bold: False
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
 
-        GridLayout:
-            cols:2
-            #padding: 5
-            size_hint: 1, 0.15
-            Label:
-                text: "Текущая база данных:"
-            Label:
-                id: model
-                text:root.current_base
-            Label:
-                text: "Магнитофонов в базе:"
-            Label:
-                id: models
-                text:root.base_models
-        BoxLayout:
-            cols:1
-            ScrollView:
-                size_hint_y: .75
-                pos_hint:{'x':0, 'y':0.10}
-                do_scrol_x: False
-                do_scrol_y: True
-                GridLayout:
-                    cols:1
-                    size:(root.width, root.height)
-                    size_hint_x: None
-                    size_hint_y: None
-                    cols: 1
-                    height: self.minimum_height
-                    Label:
-                        text: 'text'
+        Label:
+            pos_hint: {"x":0, "top": 0.98}
+            size_hint: 0.5, 0.1
+            text_size: self.size
+            font_size: (root.width + root.height) / 60
+            text: "Текущая база данных:"
+            halign: 'right'
+        Label:
+            id: model
+            pos_hint: {"x":0.55, "top": 0.98}
+            size_hint: 0.95, 0.1
+            text_size: self.size
+            font_size: (root.width + root.height) / 60
+            text:root.current_base
+            halign: 'left'
+        Label:
+            pos_hint: {"x":0, "top": 0.92}
+            size_hint: 0.5, 0.1
+            text_size: self.size
+            font_size: (root.width + root.height) / 60
+            text: "Один оборот счётчика:"
+            halign: 'right'
+        Label:
+            id: models
+            pos_hint: {"x":0.55, "top": 0.92}
+            size_hint: 0.95, 0.1
+            text_size: self.size
+            font_size: (root.width + root.height) / 60
+            halign: 'left'
+            text:root.count_one
+
 <SettingsPage>:
     name:"settings"
     GridLayout:
