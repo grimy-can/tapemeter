@@ -20,7 +20,7 @@ PageManager:
     display_model: model
     FloatLayout:
         Image:
-            source:'img/logo.png'
+            source:'data/logo.png'
             pos_hint: {"x":0, "top": 1}
             text: "LOGO"
             size_hint: .8, .15
@@ -36,7 +36,7 @@ PageManager:
                 size_hint_x: None
                 height: root.height / 5
                 width: root.width / 5
-                source:'img/login_1.png'
+                source:'data/login_1.png'
                 center_x:self.parent.center_x
                 center_y:self.parent.center_y
         Label:
@@ -53,7 +53,7 @@ PageManager:
             id: model
             text:root.current_base
             font_size: (root.width + root.height) / 45
-            pos_hint: {'x': 0, 'top': .87}
+            pos_hint: {'x': 0, 'top': .85}
             size_hint: 1, .07
             on_press:
                 app.root.current = 'data'
@@ -63,7 +63,7 @@ PageManager:
             text: ">>>"
             text_color: utils.get_color_from_hex('#FF5733')
             font_size: (root.width + root.height) / 45
-            pos_hint: {'x': 0, 'top': .8}
+            pos_hint: {'x': 0, 'top': .78}
             size_hint: .33, .07
             on_press: entry.text = ""
             on_press: cass.text = ""
@@ -84,13 +84,13 @@ PageManager:
             outline_width:1
             font_size: (root.width + root.height) / 30
             multiline: False
-            pos_hint: {'x': 0.33, 'top': .8}
+            pos_hint: {'x': 0.33, 'top': .78}
             size_hint: .34, .07
         Button:
             id: delete_right
             text: "<<<"
             font_size: (root.width + root.height) / 45
-            pos_hint: {'x': 0.67, 'top': .8}
+            pos_hint: {'x': 0.67, 'top': .78}
             size_hint: .33, .07
             on_press: entry.text = ""
             on_press: side.text = ""
@@ -99,8 +99,8 @@ PageManager:
         Button:
             text: "ВРЕМЯ ЗВУЧАНИЯ"
             font_size: (root.width + root.height) / 45
-            pos_hint: {'x': 0, 'top': .73}
-            size_hint: 1, .07
+            pos_hint: {'x': 0, 'top': .71}
+            size_hint: 1, .072
             on_press: root.calculator(entry.text)
             on_press: self.background_color = (55/255, 55/255, 55/255, 1)
             on_release: self.background_color = (1, 1, 1, 1)
@@ -111,7 +111,7 @@ PageManager:
             text: "СТОРОНА"
             background_color: (80/255, 80/255, 80/255, 1)
             font_size: (root.width + root.height) / 45
-            pos_hint: {'x': .502, 'top': .66}
+            pos_hint: {'x': .502, 'top': .64}
             size_hint: .5, .07
             canvas.before:
                 Color:
@@ -123,7 +123,7 @@ PageManager:
             font_size: (root.width + root.height) / 45
             text: "КАССЕТА"
             background_color: (80/255, 80/255, 80/255, 1)
-            pos_hint: {'x': 0, 'top': .66}
+            pos_hint: {'x': 0, 'top': .64}
             size_hint: .498, .07
             canvas.before:
                 Color:
@@ -135,7 +135,7 @@ PageManager:
             id: side
             background_color: (80/255, 80/255, 80/255, 1)
             font_size: (root.width + root.height) / 33
-            pos_hint: {'x': .502, 'top': .59}
+            pos_hint: {'x': .502, 'top': .57}
             size_hint: .498, .07
             canvas.before:
                 Color:
@@ -147,7 +147,7 @@ PageManager:
             id: cass
             background_color: (80/255, 80/255, 80/255, 1)
             font_size: (root.width + root.height) / 33
-            pos_hint: {'x': 0, 'top': .59}
+            pos_hint: {'x': 0, 'top': .57}
             size_hint: .498, .07
             canvas.before:
                 Color:
@@ -156,7 +156,7 @@ PageManager:
                     size: self.size
                     pos: self.pos
         GridLayout:
-            pos_hint: {'x': 0, 'y': .12}
+            pos_hint: {'x': 0, 'y': .10}
             size_hint: 1, .4
             id: calculator
             display: entry
@@ -202,20 +202,10 @@ PageManager:
 
 
         BoxLayout:
-            padding: 10
+            padding: 5
             pos_hint: {'x': 0.25, 'y': 0}
             size_hint: 0.5, 0.1
             cols:1
-#            MenuButton:
-#                text:'База данных'
-#                on_press:
-#                    app.root.current = 'data'
-#                    root.manager.transition.direction = 'left'
-#            MenuButton:
-#                text:'Настройки'
-#                on_press:
-#                    app.root.current = 'settings'
-#                    root.manager.transition.direction = 'left'
             MenuButton:
                 text:'Выход'
                 on_press: app.stop()
@@ -225,7 +215,7 @@ PageManager:
     FloatLayout:
         Button:
             pos_hint: {"x":0, "top": 1}
-            size_hint: 0.35, 0.05
+            size_hint: 0.35, 0.07
             color: (0,0,0,1)
             background_normal: ''
             background_color:(240/255, 148/255,22/255, 1)
@@ -233,7 +223,7 @@ PageManager:
             size: self.texture_size
             text: '  <<< Назад'
             text_size: self.size
-            font_size: (root.width + root.height) / 70
+            font_size: (root.width + root.height) / 60
             halign: 'left'
             valign: 'middle'
             on_press:
@@ -241,9 +231,9 @@ PageManager:
                 root.manager.transition.direction = 'right'
         Label:
             pos_hint: {"x":0.35, "top": 1}
-            size_hint: 0.65, 0.05
+            size_hint: 0.65, 0.07
             background_color: (240/255, 148/255,22/255, 1)
-            font_size: (root.width + root.height) / 70
+            font_size: (root.width + root.height) / 60
             text_size: self.size
             color: (0,0,0,1)
             halign: 'right'
@@ -258,33 +248,33 @@ PageManager:
                     pos: self.pos
 
         Label:
-            pos_hint: {"x":0, "top": 0.98}
+            pos_hint: {"x":0, "top": 0.95}
             size_hint: 0.5, 0.1
             text_size: self.size
-            font_size: (root.width + root.height) / 60
-            text: "Текущая база данных:"
+            font_size: (root.width + root.height) / 50
+            text: "Магнитофон:"
             halign: 'right'
         Label:
             id: model
-            pos_hint: {"x":0.55, "top": 0.98}
+            pos_hint: {"x":0.55, "top": 0.95}
             size_hint: 0.95, 0.1
             text_size: self.size
-            font_size: (root.width + root.height) / 60
+            font_size: (root.width + root.height) / 50
             text:root.current_base
             halign: 'left'
         Label:
-            pos_hint: {"x":0, "top": 0.92}
+            pos_hint: {"x":0, "top": 0.90}
             size_hint: 0.5, 0.1
             text_size: self.size
-            font_size: (root.width + root.height) / 60
-            text: "Один оборот счётчика:"
+            font_size: (root.width + root.height) / 50
+            text: "001 счётчика:"
             halign: 'right'
         Label:
             id: models
-            pos_hint: {"x":0.55, "top": 0.92}
+            pos_hint: {"x":0.55, "top": 0.90}
             size_hint: 0.95, 0.1
             text_size: self.size
-            font_size: (root.width + root.height) / 60
+            font_size: (root.width + root.height) / 50
             halign: 'left'
             text:root.count_one
 

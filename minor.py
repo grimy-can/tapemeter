@@ -8,10 +8,10 @@ from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from googleapiclient.discovery import build
 import pprint
 from openpyxl.styles import Font
-
+import kivy
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
-with open("settings.bin", "rb") as f:
+with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
 wb = load_workbook('data/database.xlsx')
 current_base = settings['model']
@@ -34,7 +34,7 @@ def cal_average(dic):
 
 def settings_read():
     """create and delete settings for programm"""
-    with open("settings.bin", "rb") as f:
+    with open("data/settings.bin", "rb") as f:
         s = pickle.load(f)
     print("Настройки программы:")
     act = input("1 - Посмотреть\n"
@@ -48,7 +48,7 @@ def settings_read():
                      "1 - Продолжить\n"
                      "0 - Выход\n")
         if warn == '1':
-            f = open("settings.bin", "wb")
+            f = open("data/settings.bin", "wb")
             s = {'first_name': None,
                  'last_name': None,
                  'company': 'Grimy Can',
@@ -116,4 +116,4 @@ def add_new_data(counter, time):
     ws.cell(ws.max_row, 3).value = today
     wb.save('data/database.xlsx')
 
-settings_read()
+print(kivy.__version__)

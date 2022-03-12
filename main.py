@@ -6,7 +6,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 import pickle
 
-Window.size = (360, 640)
+Window.size = (720/2.1, 1280/2.1)
 
 
 def cal_average(dic):
@@ -22,7 +22,7 @@ def cal_average(dic):
 
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
-with open("settings.bin", "rb") as f:
+with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
 if settings['model'] is not None:
     wb = load_workbook('data/database.xlsx')
@@ -45,10 +45,10 @@ class HomePage(Screen):
     Screen.count_one = str(count_one.total_seconds()) + ' сек.'
 
     def login_btn_press(self):
-        self.ids.login_img1.source = 'img/login_2.png'
+        self.ids.login_img1.source = 'data/login_2.png'
 
     def login_btn_rel(self):
-        self.ids.login_img1.source = 'img/login_1.png'
+        self.ids.login_img1.source = 'data/login_1.png'
 
     def calculator(self, value, count=count_one):
         if value and count > timedelta(0, 0, 0):
