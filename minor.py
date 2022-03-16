@@ -1,22 +1,16 @@
-from openpyxl import Workbook
-from openpyxl import load_workbook
-from openpyxl.comments import Comment
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 import pickle
 from google.oauth2 import service_account
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from googleapiclient.discovery import build
 import pprint
-from openpyxl.styles import Font
 import kivy
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
-wb = load_workbook('data/database.xlsx')
+
 current_base = settings['model']
-base_models = str(len(wb.sheetnames))
-ws = wb[settings['model']]
 tapemeter = dict()
 
 
@@ -52,7 +46,7 @@ def settings_read():
             s = {'first_name': None,
                  'last_name': None,
                  'company': 'Grimy Can',
-                 'model': "A&D GX-Z5300",
+                 'model': "ADGXZ5300",
                  'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
                  'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2',
                  'database_size': None,
@@ -84,20 +78,7 @@ def get_drive_dir_info():
 
 
 def create_database(model):
-    wbook = load_workbook('data/database.xlsx')
-    wsheet = wbook.create_sheet(model)
-    wsheet.sheet_properties.tabColor = "0000FF00"
-    # wbook.save('data/database.xlsx')
-    wsheet.merge_cells('A1:C2')
-    wsheet['A1'].comment = Comment(f"База создана {now}", 'Tapemeter')
-    wsheet["A1"].style = '20 % - Accent5'
-    wsheet["A3"] = "Счётчик:"
-    wsheet["B3"] = "Время:"
-    wsheet["C3"] = "Дата:"
-    wsheet["A3"].style = '20 % - Accent1'
-    wsheet["B3"].style = '20 % - Accent1'
-    wsheet["C3"].style = '20 % - Accent1'
-    wbook.save('data/database.xlsx')
+    pass
 
 
 # open database file with stored data and get one turn:
@@ -110,10 +91,7 @@ def add_new_data(counter, time):
         hours=time[0],
         minutes=time[1],
         seconds=time[2])
-    # write new data to file:
-    ws.cell(ws.max_row, 1).value = read_count
-    ws.cell(ws.max_row, 2).value = read_time_d
-    ws.cell(ws.max_row, 3).value = today
-    wb.save('data/database.xlsx')
+    pass
 
-print(kivy.__version__)
+
+settings_read()

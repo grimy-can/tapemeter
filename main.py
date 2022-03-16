@@ -1,11 +1,18 @@
-from openpyxl import load_workbook
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+from kivy.config import Config
+from kivy.clock import Clock
+from kivy.properties import ObjectProperty
+import sqlite3
+
 import pickle
 
+
+Config.set('kivy', 'keyboard_mode', 'systemanddock')
 Window.size = (720/2.1, 1280/2.1)
 
 
@@ -24,25 +31,21 @@ def cal_average(dic):
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
-if settings['model'] is not None:
-    wb = load_workbook('data/database.xlsx')
-    base_models = str(len(wb.sheetnames))
-    ws = wb[settings['model']]
-    tapemeter = dict()
-    for row in ws.iter_rows(min_row=4, max_col=2, values_only=True):
-        tapemeter[row[0]] = row[1]
-    count_one = cal_average(tapemeter)
-    current_base = settings['model']
-else:
-    base_models = 0
-    count_one = timedelta(0, 0, 0)
-    current_base = "Выбрать базу данных"
+
+
+tapemeter = dict()
+# count_one = cal_average(tapemeter)
+current_base = settings['model']
+base_models = 0
+count_one = timedelta(0, 0, 0)
+readings = 0
 
 
 class HomePage(Screen):
-    Screen.current_base = current_base
-    Screen.base_models = base_models
-    Screen.count_one = str(count_one.total_seconds()) + ' сек.'
+    current_base = ObjectProperty(current_base)
+    base_models = ObjectProperty(base_models)
+    now = ObjectProperty(datetime.now().strftime('%H:%M:%S'))
+    display_time = ObjectProperty()
 
     def login_btn_press(self):
         self.ids.login_img1.source = 'data/login_2.png'
@@ -67,8 +70,38 @@ class HomePage(Screen):
             self.ids.delete_right.color = (1, 0, 0, 1)
 
 
+class CounterTextInput(TextInput):
+    max_characters = 4
+
+    def insert_text(self, substring, from_undo=False):
+        if len(self.text) + 1 > self.max_characters > 0:
+            substring = ""
+        TextInput.insert_text(self, substring, from_undo)
+
+
+
+class TimerTextInput(TextInput):
+    max_characters = 6
+
+    def insert_text(self, substring, from_undo=False):
+        if len(self.text) > self.max_characters > 0:
+            substring = ""
+        TextInput.insert_text(self, substring, from_undo)
+        print(self.text)
+
 class DataPage(Screen):
-    pass
+    readings = ObjectProperty(str(readings))
+    count_one = ObjectProperty(str(count_one.total_seconds()))
+    current_base = ObjectProperty(current_base)
+
+    def add_new_reading(self, counter, timer):
+        if len(counter) and len(timer):
+            time_cell = time.fromisoformat(timer)
+            pass
+            self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
+        else:
+            self.ids.counter_label.color = (1, 0, 0, 1)
+            self.ids.timer_label.color = (1, 0, 0, 1)
 
 
 class SettingsPage(Screen):
@@ -88,7 +121,62 @@ gui = Builder.load_file("kvcode.kv")
 
 class TapeApp(App):
     def build(self):
+        # self.home = HomePage()
+        Clock.schedule_interval(self.update_clock, 1)
         return gui
+
+    def update_clock(self, *args):
+        self.root.ids.home.ids.time_label.text = \
+            datetime.now().strftime('%H:%M:%S')
+    # create database or connect on:
+
+    conn = sqlite3.connect('data/database.db')
+    # create a cursor:
+    curs = conn.cursor()
+    # create a table:
+    curs.execute("""CREATE TABLE if not exists cassetes(
+                        Counter integer
+                        )""")
+    # commit changes:
+    conn.commit()
+    # close connection
+    conn.close()
+
+    def record(self):
+        # create database or connect on:
+        conn = sqlite3.connect('data/database.db')
+        # create a cursor:
+        curs = conn.cursor()
+        # add a record:
+        curs.execute("INSERT INTO cassetes VALUES (:time)",
+                     {'time': self.root.ids.sqlite_inp.text, })
+        # add a message:
+        self.root.ids.record_confirm.text = \
+            f'{self.root.ids.sqlite_inp.text} съела!'
+        # clear the input box:
+        self.root.ids.sqlite_inp.text = ''
+        # commit changes:
+        conn.commit()
+        # close connection
+        conn.close()
+
+    def show(self):
+        # create database or connect on:
+        conn = sqlite3.connect('data/database.db')
+        # create a cursor:
+        curs = conn.cursor()
+        # grab reord from database:
+        curs.execute("SELECT * FROM cassetes")
+        records = curs.fetchall()
+        word = ''
+        # loop:
+        for rec in records:
+            word = f'{word}{rec}'
+            self.root.ids.sqlite_show.text = f'{word} вышло!'
+        # commit changes:
+        conn.commit()
+        # close connection
+        conn.close()
 
 
 if __name__ == "__main__":
