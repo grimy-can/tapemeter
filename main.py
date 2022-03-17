@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime, time
+from datetime import timedelta, datetime
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
@@ -8,8 +8,8 @@ from kivy.config import Config
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 import sqlite3
-
 import pickle
+import re
 
 
 Config.set('kivy', 'keyboard_mode', 'systemanddock')
@@ -20,7 +20,8 @@ def cal_average(dic):
     """average tape time calculation from database"""
     total_t = timedelta(minutes=0)
     total_c = sum(map(int, dic.keys()))
-    for t in dic.values():
+    for v in dic.values():
+        t = datetime.strptime(v, "%H:%M:%S")
         time_d = timedelta(hours=t.hour, minutes=t.minute,
                            seconds=t.second)
         total_t += time_d
@@ -31,14 +32,33 @@ def cal_average(dic):
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
-
-
 tapemeter = dict()
-# count_one = cal_average(tapemeter)
+# create database or connect on:
+conn = sqlite3.connect('data/database.db')
+# create a cursor:
+curs = conn.cursor()
+# grab records from database:
+def grab_records():
+    curs.execute("SELECT * FROM CassetesTime")
+    records = curs.fetchall()
+    for rec in records:
+        tapemeter[rec[0]] = rec[1]
+    curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    # get from sqlite base :
+    count_one = cal_average(tapemeter)
+    readings = len(tapemeter)
+
+curs.execute("SELECT * FROM CassetesTime")
+records = curs.fetchall()
+for rec in records:
+    tapemeter[rec[0]] = rec[1]
+curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
+
+# get from sqlite base :
+base_models = len(curs.fetchall())
 current_base = settings['model']
-base_models = 0
-count_one = timedelta(0, 0, 0)
-readings = 0
+count_one = cal_average(tapemeter)
+readings = len(tapemeter)
 
 
 class HomePage(Screen):
@@ -79,7 +99,6 @@ class CounterTextInput(TextInput):
         TextInput.insert_text(self, substring, from_undo)
 
 
-
 class TimerTextInput(TextInput):
     max_characters = 6
 
@@ -87,21 +106,48 @@ class TimerTextInput(TextInput):
         if len(self.text) > self.max_characters > 0:
             substring = ""
         TextInput.insert_text(self, substring, from_undo)
-        print(self.text)
+
 
 class DataPage(Screen):
     readings = ObjectProperty(str(readings))
     count_one = ObjectProperty(str(count_one.total_seconds()))
     current_base = ObjectProperty(current_base)
 
+    curs.execute("""CREATE TABLE if not exists CassetesTime
+                    (counter INT,
+                    time INT DEFAULT 0,
+                    date INT timestamp
+                    )""")
+    # commit changes:
+    conn.commit()
+
     def add_new_reading(self, counter, timer):
+        # add a record:
         if len(counter) and len(timer):
-            time_cell = time.fromisoformat(timer)
-            pass
+            time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
             self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
+            curs.execute(
+                "INSERT INTO CassetesTime VALUES (:counter, :time,:date)",
+                 {'counter': counter, 'time': timer, 'date':now})
+            grab_records()
+            count_one = cal_average(tapemeter)
+            readings = len(tapemeter)
+            self.ids.models.text = str(count_one.total_seconds())
+            self.ids.readings.text = str(readings)
+
         else:
             self.ids.counter_label.color = (1, 0, 0, 1)
             self.ids.timer_label.color = (1, 0, 0, 1)
+        # commit changes:
+        conn.commit()
+
+    def read_data(self):
+        # grab reord from database:
+        curs.execute("SELECT * FROM CassetesTime")
+        all_base = curs.fetchall()
+        # loop:
+        for row in all_base:
+            print(row)
 
 
 class SettingsPage(Screen):
@@ -130,53 +176,10 @@ class TapeApp(App):
             datetime.now().strftime('%H:%M:%S')
     # create database or connect on:
 
-    conn = sqlite3.connect('data/database.db')
-    # create a cursor:
-    curs = conn.cursor()
-    # create a table:
-    curs.execute("""CREATE TABLE if not exists cassetes(
-                        Counter integer
-                        )""")
-    # commit changes:
-    conn.commit()
-    # close connection
-    conn.close()
-
-    def record(self):
-        # create database or connect on:
-        conn = sqlite3.connect('data/database.db')
-        # create a cursor:
-        curs = conn.cursor()
-        # add a record:
-        curs.execute("INSERT INTO cassetes VALUES (:time)",
-                     {'time': self.root.ids.sqlite_inp.text, })
-        # add a message:
-        self.root.ids.record_confirm.text = \
-            f'{self.root.ids.sqlite_inp.text} съела!'
-        # clear the input box:
-        self.root.ids.sqlite_inp.text = ''
-        # commit changes:
-        conn.commit()
-        # close connection
+    def exit_app(self):
+        # close connection sqlite
         conn.close()
-
-    def show(self):
-        # create database or connect on:
-        conn = sqlite3.connect('data/database.db')
-        # create a cursor:
-        curs = conn.cursor()
-        # grab reord from database:
-        curs.execute("SELECT * FROM cassetes")
-        records = curs.fetchall()
-        word = ''
-        # loop:
-        for rec in records:
-            word = f'{word}{rec}'
-            self.root.ids.sqlite_show.text = f'{word} вышло!'
-        # commit changes:
-        conn.commit()
-        # close connection
-        conn.close()
+        self.stop()
 
 
 if __name__ == "__main__":

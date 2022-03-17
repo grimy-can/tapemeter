@@ -60,7 +60,7 @@ PageManager:
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .85}
             size_hint: 1, .07
-            on_press:
+            on_release:
                 app.root.current = 'data'
                 root.manager.transition.direction = 'left'
         Button:
@@ -213,7 +213,7 @@ PageManager:
             cols:1
             MenuButton:
                 text:'Выход'
-                on_press: app.stop()
+                on_release: app.exit_app()
 
 <DataPage>:
     name:"data"
@@ -291,7 +291,6 @@ PageManager:
             font_size: (root.width + root.height) / 50
             text: "Кассет в базе:"
             halign: 'right'
-
         Button:
             id: add_label
             pos_hint: {"x":0, "top": 0.72}
@@ -354,7 +353,7 @@ PageManager:
             id: timer_input
             multiline: False
             focus:True
-            input_type: 'number'
+            input_type: 'datetime'
             pos_hint: {"x":0.372, "top": 0.58}
             size_hint: 0.26, 0.06
             text_size: self.size

@@ -46,7 +46,7 @@ def settings_read():
             s = {'first_name': None,
                  'last_name': None,
                  'company': 'Grimy Can',
-                 'model': "ADGXZ5300",
+                 'model': "AD GX-Z5300",
                  'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
                  'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2',
                  'database_size': None,
