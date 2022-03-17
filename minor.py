@@ -1,10 +1,10 @@
-from datetime import timedelta, datetime, time
-import pickle
+from datetime import timedelta, datetime
 from google.oauth2 import service_account
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 from googleapiclient.discovery import build
 import pprint
-import kivy
+import pickle
+import io
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("data/settings.bin", "rb") as f:
@@ -48,8 +48,8 @@ def settings_read():
                  'company': 'Grimy Can',
                  'model': "AD GX-Z5300",
                  'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
-                 'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2',
-                 'database_size': None,
+                 'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2s',
+                 'database_id': '1CRegyaIdKMEF-aZPoGWxP3H4naN8BqYz',
                  'database_date': None}
             pickle.dump(s, f)
             print("Настройки сброшены.")
@@ -77,21 +77,61 @@ def get_drive_dir_info():
     pp.pprint(results)
 
 
-def create_database(model):
-    pass
+def upload_to_drive():
+    """ upload database to googledrive: """
+    pp = pprint.PrettyPrinter(indent=4)
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+    SERVICE_ACCOUNT_FILE = 'key.json'
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    service = build('drive', 'v3', credentials=credentials)
+    folder_id = settings['database_folder']
+    name = 'database.db'
+    file_path = 'data/database.db'
+    file_metadata = {'name': name, 'parents': [folder_id]}
+    media = MediaFileUpload(file_path, resumable=True)
+    r = service.files().create(body=file_metadata, media_body=media,
+                               fields='id').execute()
+    pp.pprint(r)
 
 
-# open database file with stored data and get one turn:
+def update_to_drive():
+    """ update database to googledrive: """
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+    SERVICE_ACCOUNT_FILE = 'key.json'
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    service = build('drive', 'v3', credentials=credentials)
+    file_path = 'data/database.db'
+    media = MediaFileUpload(file_path, resumable=True)
+    updated_file = service.files().update(
+        fileId=settings['database_id'],
+        media_body=media).execute()
+    if updated_file['id'] == settings['database_id']:
+        message = "Успешно загружено!"
+        return message
 
-
-def add_new_data(counter, time):
-    today = datetime.today().strftime('%Y-%m-%d')
-    read_count = int(counter)
-    read_time_d = timedelta(
-        hours=time[0],
-        minutes=time[1],
-        seconds=time[2])
-    pass
+def update_from_drive():
+    SCOPES = ['https://www.googleapis.com/auth/drive']
+    SERVICE_ACCOUNT_FILE = 'key.json'
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    service = build('drive', 'v3', credentials=credentials)
+    file_id = settings['database_id']
+    filename = 'data/database.db'
+    request = service.files().get_media(fileId=file_id)
+    fh = io.FileIO(filename, 'wb')
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    try:
+        while done is False:
+            status, done = downloader.next_chunk()
+            message = "Download %d%%." % int(status.progress() * 100)
+            return message
+    except ConnectionError as e:
+        print(e)
+    finally:
+        return None
 
 
 settings_read()

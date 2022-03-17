@@ -1,4 +1,7 @@
 from datetime import timedelta, datetime
+from google.oauth2 import service_account
+from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.discovery import build
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
@@ -38,15 +41,16 @@ conn = sqlite3.connect('data/database.db')
 # create a cursor:
 curs = conn.cursor()
 # grab records from database:
+
+
 def grab_records():
     curs.execute("SELECT * FROM CassetesTime")
-    records = curs.fetchall()
-    for rec in records:
-        tapemeter[rec[0]] = rec[1]
+    cassetess = curs.fetchall()
+    for cass in cassetess:
+        tapemeter[cass[0]] = cass[1]
     curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
     # get from sqlite base :
-    count_one = cal_average(tapemeter)
-    readings = len(tapemeter)
+
 
 curs.execute("SELECT * FROM CassetesTime")
 records = curs.fetchall()
@@ -57,6 +61,10 @@ curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
 # get from sqlite base :
 base_models = len(curs.fetchall())
 current_base = settings['model']
+if settings['database_date']:
+    database_date = settings['database_date']
+else:
+    database_date = ''
 count_one = cal_average(tapemeter)
 readings = len(tapemeter)
 
@@ -112,6 +120,7 @@ class DataPage(Screen):
     readings = ObjectProperty(str(readings))
     count_one = ObjectProperty(str(count_one.total_seconds()))
     current_base = ObjectProperty(current_base)
+    database_date = ObjectProperty(database_date)
 
     curs.execute("""CREATE TABLE if not exists CassetesTime
                     (counter INT,
@@ -123,12 +132,12 @@ class DataPage(Screen):
 
     def add_new_reading(self, counter, timer):
         # add a record:
-        if len(counter) and len(timer):
+        if len(counter) and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
             time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
             self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
             curs.execute(
                 "INSERT INTO CassetesTime VALUES (:counter, :time,:date)",
-                 {'counter': counter, 'time': timer, 'date':now})
+                 {'counter': counter, 'time': time_cell, 'date':now})
             grab_records()
             count_one = cal_average(tapemeter)
             readings = len(tapemeter)
@@ -148,6 +157,27 @@ class DataPage(Screen):
         # loop:
         for row in all_base:
             print(row)
+
+    def update_to_drive(self):
+        """ update database to googledrive: """
+        SCOPES = ['https://www.googleapis.com/auth/drive']
+        SERVICE_ACCOUNT_FILE = 'key.json'
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        service = build('drive', 'v3', credentials=credentials)
+        file_path = 'data/database.db'
+        media = MediaFileUpload(file_path, resumable=True)
+        updated_file = service.files().update(
+            fileId=settings['database_id'],
+            media_body=media).execute()
+        if updated_file['id'] == settings['database_id']:
+            message = "Успешно загружено!  " + now
+            f = open("data/settings.bin", "wb")
+            settings['database_date'] = now
+            pickle.dump(settings, f)
+        else:
+            message = "Что-то пошло не так!"
+        self.ids.update_label.text = message
 
 
 class SettingsPage(Screen):

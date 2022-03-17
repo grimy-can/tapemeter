@@ -340,7 +340,7 @@ PageManager:
             pos_hint: {"x":0, "top": 0.58}
             size_hint: 1, 0.06
             background_color: (100/255, 100/255, 100/255, 1)
-            text: "ВРЕМЯ:                            Ч,М,С"
+            text: "ВРЕМЯ:                            Ч:М:С  "
             color: (1,1,1,1)
             font_size: (root.width + root.height) / 60
             canvas.before:
@@ -376,6 +376,39 @@ PageManager:
             on_release: self.background_color = (240/255, 148/255,22/255, 1)
             on_release: timer_label.color = (1, 1, 1, 1)
             on_release: counter_label.color = (1, 1, 1, 1)
+        Label:
+            id: update_label
+            pos_hint: {"x":0, "top": 0.15}
+            size_hint: 1, 0.06
+            background_color: (100/255, 100/255, 100/255, 1)
+            color: (1,1,1,1)
+            text: "Последний upload: " + root.database_date
+            font_size: (root.width + root.height) / 60
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Button:
+            id: add_btn
+            pos_hint: {"x":0.1, "top": 0.08}
+            size_hint: 0.28, 0.048
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'ОТПРАВИТЬ НА'
+            text_size: self.size
+            font_size: (root.width + root.height) / 95
+            halign: 'center'
+            valign: 'middle'
+            on_release: root.update_to_drive()
+        Image:
+            source:'data/google.png'
+            pos_hint: {"x":0.43, "top": 0.105}
+            size_hint: .5, .10
+
 
 <SettingsPage>:
     name:"settings"
