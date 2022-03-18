@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from google.oauth2 import service_account
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
-from googleapiclient.discovery import build
+# from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+# from googleapiclient.discovery import build
 import pprint
 import pickle
 import io
@@ -76,7 +76,6 @@ def get_drive_dir_info():
 
     pp.pprint(results)
 
-
 def upload_to_drive():
     """ upload database to googledrive: """
     pp = pprint.PrettyPrinter(indent=4)
@@ -93,7 +92,6 @@ def upload_to_drive():
     r = service.files().create(body=file_metadata, media_body=media,
                                fields='id').execute()
     pp.pprint(r)
-
 
 def update_to_drive():
     """ update database to googledrive: """

@@ -1,18 +1,17 @@
 from datetime import timedelta, datetime
-from google.oauth2 import service_account
-from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
-from googleapiclient.discovery import build
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
-# from kivy.core.window import Window
+from kivy.core.window import Window
 from kivy.config import Config
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 import sqlite3
 import pickle
 import re
+import requests
+from bs4 import BeautifulSoup
 
 
 Config.set('kivy', 'keyboard_mode', '')
@@ -74,6 +73,23 @@ class HomePage(Screen):
     base_models = ObjectProperty(base_models)
     now = ObjectProperty(datetime.now().strftime('%H:%M:%S'))
     display_time = ObjectProperty()
+    output_weather = ObjectProperty(base_models)
+
+    def weather(self):
+        # current temperature from https://shadrinsk.nuipogoda.ru/
+        url_weather = 'https://shadrinsk.nuipogoda.ru/'
+        # specify allowable user-agent and pass it as headers:
+        ua = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+        agent = {'User-Agent': ua}
+        page = requests.get(url_weather, headers=agent)
+        doc = BeautifulSoup(page.text, 'lxml')
+        page = requests.get(url_weather)
+        if page.status_code == 200:
+            temperature = doc.find_all("div", class_="l")
+            output = temperature[0].div.text.split(':')[1]
+        else:
+            output = None
+        self.ids.weather_label.text = output
 
     def login_btn_press(self):
         self.ids.login_img1.source = 'data/login_2.png'
@@ -132,17 +148,18 @@ class DataPage(Screen):
 
     def add_new_reading(self, counter, timer):
         # add a record:
-        if len(counter) and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
+        if len(counter) and len(timer) \
+                and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
             time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
             self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
             curs.execute(
                 "INSERT INTO CassetesTime VALUES (:counter, :time,:date)",
-                {'counter': counter, 'time': time_cell, 'date':now})
+                {'counter': counter, 'time': time_cell, 'date': now})
             grab_records()
-            count_one = cal_average(tapemeter)
-            readings = len(tapemeter)
-            self.ids.models.text = str(count_one.total_seconds())
-            self.ids.readings.text = str(readings)
+            one = cal_average(tapemeter)
+            cass = len(tapemeter)
+            self.ids.models.text = str(one.total_seconds())
+            self.ids.readings.text = str(cass)
 
         else:
             self.ids.counter_label.color = (1, 0, 0, 1)
@@ -150,34 +167,34 @@ class DataPage(Screen):
         # commit changes:
         conn.commit()
 
-    def read_data(self):
-        # grab reord from database:
-        curs.execute("SELECT * FROM CassetesTime")
-        all_base = curs.fetchall()
-        # loop:
-        for row in all_base:
-            print(row)
+    # def read_data(self):
+    #     # grab reord from database:
+    #     curs.execute("SELECT * FROM CassetesTime")
+    #     all_base = curs.fetchall()
+    #     # loop:
+    #     for row in all_base:
+    #         print(row)
 
-    def update_to_drive(self):
-        """ update database to googledrive: """
-        SCOPES = ['https://www.googleapis.com/auth/drive']
-        SERVICE_ACCOUNT_FILE = 'key.json'
-        credentials = service_account.Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-        service = build('drive', 'v3', credentials=credentials)
-        file_path = 'data/database.db'
-        media = MediaFileUpload(file_path, resumable=True)
-        updated_file = service.files().update(
-            fileId=settings['database_id'],
-            media_body=media).execute()
-        if updated_file['id'] == settings['database_id']:
-            message = "Успешно загружено!  " + now
-            f = open("data/settings.bin", "wb")
-            settings['database_date'] = now
-            pickle.dump(settings, f)
-        else:
-            message = "Что-то пошло не так!"
-        self.ids.update_label.text = message
+    # def update_to_drive(self):
+    #     """ update database to googledrive: """
+    #     SCOPES = ['https://www.googleapis.com/auth/drive']
+    #     SERVICE_ACCOUNT_FILE = 'key.json'
+    #     credentials = service_account.Credentials.from_service_account_file(
+    #         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    #     service = build('drive', 'v3', credentials=credentials)
+    #     file_path = 'data/database.db'
+    #     media = MediaFileUpload(file_path, resumable=True)
+    #     updated_file = service.files().update(
+    #         fileId=settings['database_id'],
+    #         media_body=media).execute()
+    #     if updated_file['id'] == settings['database_id']:
+    #         message = "Успешно загружено!  " + now
+    #         f = open("data/settings.bin", "wb")
+    #         settings['database_date'] = now
+    #         pickle.dump(settings, f)
+    #     else:
+    #         message = "Что-то пошло не так!"
+    #     self.ids.update_label.text = message
 
 
 class SettingsPage(Screen):

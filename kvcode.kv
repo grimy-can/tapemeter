@@ -28,11 +28,15 @@ PageManager:
             text: "LOGO"
             size_hint: .8, .15
         Button:
+            background_normal: ''
             background_color:(0,0,0,0)
             size_hint: .2, .13
             pos_hint: {"x":.8, "top": 1}
+            on_release:root.weather()
             on_press: root.login_btn_press()
             on_release: root.login_btn_rel()
+            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
+            on_release: self.background_color = (0,0,0,0)
             Image:
                 id: login_img1
                 size_hint_y: None
@@ -42,24 +46,34 @@ PageManager:
                 source:'data/login_1.png'
                 center_x:self.parent.center_x
                 center_y:self.parent.center_y
-
         Label:
             id: time_label
-            size_hint: .2, .03
-            pos_hint: {"x":.8, "top": .897}
+            size_hint: .1, .025
+            pos_hint: {"x":.1, "top": .877}
             text: root.now
             font_size:(root.width + root.height) / 60
             color: (1,1,1,1)
             bold: False
             outline_color: (0,0,0,1)
             outline_width:1
-
+        Label:
+            id: weather_label
+            size_hint: .2, .03
+            pos_hint: {"x":.5, "top": .877}
+            text: "Температура н.в."
+            font_size:(root.width + root.height) / 60
+            color: (1,1,1,1)
+            bold: False
+            outline_color: (0,0,0,1)
+            outline_width:1
         Button:
             id: model
             text:root.current_base
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .85}
             size_hint: 1, .07
+            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
+            on_release: self.background_color = (1, 1, 1, 1)
             on_release:
                 app.root.current = 'data'
                 root.manager.transition.direction = 'left'
@@ -389,7 +403,7 @@ PageManager:
                     size: self.size
                     pos: self.pos
         Button:
-            id: add_btn
+            id: up_btn
             pos_hint: {"x":0.1, "top": 0.08}
             size_hint: 0.28, 0.048
             color: (0,0,0,1)
@@ -401,6 +415,7 @@ PageManager:
             font_size: (root.width + root.height) / 95
             halign: 'center'
             valign: 'middle'
+            disabled:True
             on_release: root.update_to_drive()
         Image:
             source:'data/google.png'
