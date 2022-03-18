@@ -38,7 +38,7 @@ current_base = settings['model']
 tapemeter = dict()
 try:
     # create database or connect on:
-    conn = sqlite3.connect('data/database.db')
+    conn = sqlite3.connect('database.db')
     # create a cursor:
     curs = conn.cursor()
     # grab records from database:
@@ -131,16 +131,16 @@ class HomePage(Screen):
         if value :
             tapemeter_temp = dict()
             try:
-                conn = sqlite3.connect('data/database.db')
+                conn = sqlite3.connect('/database.db')
                 curs = conn.cursor()
                 curs.execute("SELECT * FROM CassetesTime")
                 records = curs.fetchall()
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 mess = "База данных не найдена!"
                 return mess
 
-            for rec in records:
-                tapemeter_temp[rec[0]] = rec[1]
+            for r in records:
+                tapemeter_temp[r[0]] = r[1]
             min_c = min(tuple(tapemeter_temp.keys()))
             x1, x2 = '0', '0'
             for k, v in tapemeter_temp.items():
@@ -153,7 +153,7 @@ class HomePage(Screen):
             y2 = datetime.strptime(tapemeter_temp[x2], "%H:%M:%S")
             s = (((int(value) - x1) / (x2 - x1)) * (y2 - y1)) + y1
             tape_side = timedelta(hours=s.hour, minutes=s.minute,
-                               seconds=s.second)
+                                  seconds=s.second)
             tape_len = tape_side * 2
             self.display_cass.text = str(tape_len)
             self.display_side.text = str(tape_side)
@@ -215,7 +215,19 @@ class DataPage(Screen):
         # commit changes:
         conn.commit()
 
+    def save_data(self):
+        with open('../backup.bin', "wb") as f:
+            pickle.dump(tapemeter, f)
+        self.ids.update_label.text = "Сохранено на SD! " + now
+
+    def restore_data(self):
+        with open('../backup.bin', "rb") as f:
+            temp_dict = pickle.load(f)
+            found_records = str(len(temp_dict.keys()))
+            self.ids.update_label.text = f"Найдено {found_records} записей!"
+
     # def read_data(self):
+
     #     # grab reord from database:
     #     curs.execute("SELECT * FROM CassetesTime")
     #     all_base = curs.fetchall()
@@ -230,7 +242,7 @@ class DataPage(Screen):
     #     credentials = service_account.Credentials.from_service_account_file(
     #         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     #     service = build('drive', 'v3', credentials=credentials)
-    #     file_path = 'data/database.db'
+    #     file_path = 'database.db'
     #     media = MediaFileUpload(file_path, resumable=True)
     #     updated_file = service.files().update(
     #         fileId=settings['database_id'],
