@@ -59,7 +59,7 @@ PageManager:
         Label:
             id: weather_label
             size_hint: .2, .03
-            pos_hint: {"x":.5, "top": .877}
+            pos_hint: {"x":.5, "top": .878}
             text: "Температура н.в."
             font_size:(root.width + root.height) / 60
             color: (1,1,1,1)
@@ -120,7 +120,7 @@ PageManager:
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .71}
             size_hint: 1, .072
-            on_press: root.calculator(entry.text)
+            on_press: root.calculator_abs(entry.text)
             on_press: self.background_color = (55/255, 55/255, 55/255, 1)
             on_release: self.background_color = (1, 1, 1, 1)
             on_release: delete_left.color = (1, 1, 1, 1)
@@ -209,9 +209,15 @@ PageManager:
             CustButton:
                 text: "1"
                 on_press: entry.text += self.text
-            CustButton:
-                text: "."
-                on_press: entry.text += self.text
+            Button:
+                id: funct_choice
+                on_press: self.background_color = (55/255, 55/255, 55/255, 1)
+                on_release: self.background_color = (1, 1, 1, 1)
+                text: "Абс."
+                on_press: root.calculator_rel(entry.text)
+                on_press: self.text = "Отнс."
+                on_release: self.text = "Абс."
+                on_release: root.calculator_abs(entry.text)
             CustButton:
                 text: "0"
                 on_press: entry.text += self.text

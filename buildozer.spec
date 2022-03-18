@@ -37,7 +37,7 @@ version = 0.1.4
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy,
-requirements = python3,kivy
+requirements = python3,kivy,lxml,beautifulsoup4,html5lib,requests,openssl,android,urllib3, chardet, certifi, idna
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
@@ -60,7 +60,7 @@ orientation = portrait
 #
 
 #
-author = © Вадим Рязанов
+#author = © Вадим Рязанов
 
 # change the major version of python used by the app
 osx.python_version = 3

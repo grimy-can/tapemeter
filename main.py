@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 
 
 Config.set('kivy', 'keyboard_mode', '')
-# Window.size = (720/2.1, 1280/2.1)
+Window.size = (720/2.1, 1280/2.1)
 
 
 def cal_average(dic):
@@ -34,6 +34,7 @@ def cal_average(dic):
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
+current_base = settings['model']
 tapemeter = dict()
 try:
     # create database or connect on:
@@ -41,20 +42,33 @@ try:
     # create a cursor:
     curs = conn.cursor()
     # grab records from database:
+    curs.execute("""CREATE TABLE if not exists CassetesTime
+                        (counter INT,
+                        time INT DEFAULT 0,
+                        date INT timestamp
+                        )""")
+    # commit changes:
+    conn.commit()
     curs.execute("SELECT * FROM CassetesTime")
     records = curs.fetchall()
-    for rec in records:
-        tapemeter[rec[0]] = rec[1]
-    curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    # get from sqlite base :
-    base_models = len(curs.fetchall())
-    current_base = settings['model']
-    if settings['database_date']:
-        database_date = settings['database_date']
+    if len(records) > 0:
+        for rec in records:
+            tapemeter[rec[0]] = rec[1]
+        curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        # get from sqlite base :
+        base_models = len(curs.fetchall())
+        if settings['database_date']:
+            database_date = settings['database_date']
+        else:
+            database_date = ''
+        count_one = cal_average(tapemeter)
+        readings = len(tapemeter)
     else:
+        count_one = timedelta(0, 0, 0)
+        readings = 0
+        base_models = 0
         database_date = ''
-    count_one = cal_average(tapemeter)
-    readings = len(tapemeter)
+
 except FileNotFoundError as e:
     print("База данных не найдена!")
 
@@ -97,7 +111,7 @@ class HomePage(Screen):
     def login_btn_rel(self):
         self.ids.login_img1.source = 'data/login_1.png'
 
-    def calculator(self, value, count=count_one):
+    def calculator_abs(self, value, count=count_one):
         if value and count > timedelta(0, 0, 0):
             tape_len = (count_one * int(float(value)))\
                        * 2 - timedelta(minutes=0, seconds=20)
@@ -107,6 +121,40 @@ class HomePage(Screen):
                 microseconds=tape_len.microseconds)
             tape_side = tape_side - timedelta(
                 microseconds=tape_side.microseconds)
+            self.display_cass.text = str(tape_len)
+            self.display_side.text = str(tape_side)
+        else:
+            self.ids.delete_left.color = (1, 0, 0, 1)
+            self.ids.delete_right.color = (1, 0, 0, 1)
+
+    def calculator_rel(self, value):
+        if value :
+            tapemeter_temp = dict()
+            try:
+                conn = sqlite3.connect('data/database.db')
+                curs = conn.cursor()
+                curs.execute("SELECT * FROM CassetesTime")
+                records = curs.fetchall()
+            except FileNotFoundError as e:
+                mess = "База данных не найдена!"
+                return mess
+
+            for rec in records:
+                tapemeter_temp[rec[0]] = rec[1]
+            min_c = min(tuple(tapemeter_temp.keys()))
+            x1, x2 = '0', '0'
+            for k, v in tapemeter_temp.items():
+                if abs(k - int(value)) < min_c:
+                    x1 = int(k)
+            for k, v in tapemeter_temp.items():
+                if abs(k - int(value)) < min_c and k > x1:
+                    x2 = int(k)
+            y1 = datetime.strptime(tapemeter_temp[x1], "%H:%M:%S")
+            y2 = datetime.strptime(tapemeter_temp[x2], "%H:%M:%S")
+            s = (((int(value) - x1) / (x2 - x1)) * (y2 - y1)) + y1
+            tape_side = timedelta(hours=s.hour, minutes=s.minute,
+                               seconds=s.second)
+            tape_len = tape_side * 2
             self.display_cass.text = str(tape_len)
             self.display_side.text = str(tape_side)
         else:
