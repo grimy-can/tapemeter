@@ -6,7 +6,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.core.window import Window
+# from kivy.core.window import Window
 from kivy.config import Config
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
@@ -15,8 +15,8 @@ import pickle
 import re
 
 
-Config.set('kivy', 'keyboard_mode', 'systemanddock')
-Window.size = (720/2.1, 1280/2.1)
+Config.set('kivy', 'keyboard_mode', '')
+# Window.size = (720/2.1, 1280/2.1)
 
 
 def cal_average(dic):
@@ -36,11 +36,28 @@ now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("data/settings.bin", "rb") as f:
     settings = pickle.load(f)
 tapemeter = dict()
-# create database or connect on:
-conn = sqlite3.connect('data/database.db')
-# create a cursor:
-curs = conn.cursor()
-# grab records from database:
+try:
+    # create database or connect on:
+    conn = sqlite3.connect('data/database.db')
+    # create a cursor:
+    curs = conn.cursor()
+    # grab records from database:
+    curs.execute("SELECT * FROM CassetesTime")
+    records = curs.fetchall()
+    for rec in records:
+        tapemeter[rec[0]] = rec[1]
+    curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    # get from sqlite base :
+    base_models = len(curs.fetchall())
+    current_base = settings['model']
+    if settings['database_date']:
+        database_date = settings['database_date']
+    else:
+        database_date = ''
+    count_one = cal_average(tapemeter)
+    readings = len(tapemeter)
+except FileNotFoundError as e:
+    print("База данных не найдена!")
 
 
 def grab_records():
@@ -50,23 +67,6 @@ def grab_records():
         tapemeter[cass[0]] = cass[1]
     curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
     # get from sqlite base :
-
-
-curs.execute("SELECT * FROM CassetesTime")
-records = curs.fetchall()
-for rec in records:
-    tapemeter[rec[0]] = rec[1]
-curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
-
-# get from sqlite base :
-base_models = len(curs.fetchall())
-current_base = settings['model']
-if settings['database_date']:
-    database_date = settings['database_date']
-else:
-    database_date = ''
-count_one = cal_average(tapemeter)
-readings = len(tapemeter)
 
 
 class HomePage(Screen):
@@ -83,7 +83,7 @@ class HomePage(Screen):
 
     def calculator(self, value, count=count_one):
         if value and count > timedelta(0, 0, 0):
-            tape_len = (count_one * int(value))\
+            tape_len = (count_one * int(float(value)))\
                        * 2 - timedelta(minutes=0, seconds=20)
             # get rid from microseconds:
             tape_side = tape_len / 2
@@ -137,7 +137,7 @@ class DataPage(Screen):
             self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
             curs.execute(
                 "INSERT INTO CassetesTime VALUES (:counter, :time,:date)",
-                 {'counter': counter, 'time': time_cell, 'date':now})
+                {'counter': counter, 'time': time_cell, 'date':now})
             grab_records()
             count_one = cal_average(tapemeter)
             readings = len(tapemeter)
