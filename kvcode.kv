@@ -10,9 +10,19 @@ PageManager:
 #<Button>:
 #    font_size: (root.width + root.height) / 20
 <CustButton@Button>:
+    background_normal: ''
+    background_color:(90/255, 90/255, 90/255, 1)
     font_size: (root.width + root.height) / 5
+    on_press: self.background_color = (200/255, 200/255, 200/255, 1)
+    on_release: self.background_color = (90/255, 90/255, 90/255, 1)
+    on_press: self.color = (0, 0, 0, 1)
+    on_release: self.color = (1, 1, 1, 1)
+#    on_release: self.background_color = (90/255, 90/255, 90/255, 1)
+#    on_release: self.color = (1, 1, 1, 1)
 <MenuButton@Button>:
+
     font_size: (root.width + root.height) / 10
+
 
 <HomePage>:
     name: "home"
@@ -100,7 +110,7 @@ PageManager:
             color: (0,0,0,1)
             bold: False
             outline_color: (1,1,1,1)
-            outline_width:1
+            outline_width:0.5
             font_size: (root.width + root.height) / 30
             multiline: False
             pos_hint: {'x': 0.33, 'top': .78}
@@ -184,39 +194,42 @@ PageManager:
             spacing: 10
             CustButton:
                 text: "7"
-                on_press: entry.text += self.text
+                id: cus_button7
+                on_press: root.cust_button_press(7)
+#                on_press: entry.text += self.text
             CustButton:
                 text: "8"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(8)
+#                on_press: entry.text += self.text
             CustButton:
                 text: "9"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(9)
             CustButton:
                 text: "4"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(4)
             CustButton:
                 text: "5"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(5)
             CustButton:
                 text: "6"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(6)
             CustButton:
                 text: "3"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(3)
             CustButton:
                 text: "2"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(2)
             CustButton:
                 text: "1"
-                on_press: entry.text += self.text
+                on_press: root.cust_button_press(1)
             Button:
                 id: funct_choice
                 on_press: self.background_color = (55/255, 55/255, 55/255, 1)
                 on_release: self.background_color = (1, 1, 1, 1)
-                text: "Абс."
+                text: "f1"
                 on_press: root.calculator_rel(entry.text)
-                on_press: self.text = "Отнс."
-                on_release: self.text = "Абс."
+                on_press: self.text = "f2"
+                on_release: self.text = "f1"
                 on_release: root.calculator_abs(entry.text)
             CustButton:
                 text: "0"

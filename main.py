@@ -38,15 +38,12 @@ current_base = settings['model']
 tapemeter = dict()
 try:
     # create database or connect on:
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect('../database.db')
     # create a cursor:
     curs = conn.cursor()
     # grab records from database:
     curs.execute("""CREATE TABLE if not exists CassetesTime
-                        (counter INT,
-                        time INT DEFAULT 0,
-                        date INT timestamp
-                        )""")
+                        (counter INT,time INT DEFAULT 0)""")
     # commit changes:
     conn.commit()
     curs.execute("SELECT * FROM CassetesTime")
@@ -90,26 +87,36 @@ class HomePage(Screen):
     output_weather = ObjectProperty(base_models)
 
     def weather(self):
+        output = ''
         # current temperature from https://shadrinsk.nuipogoda.ru/
         url_weather = 'https://shadrinsk.nuipogoda.ru/'
         # specify allowable user-agent and pass it as headers:
         ua = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
         agent = {'User-Agent': ua}
-        page = requests.get(url_weather, headers=agent)
-        doc = BeautifulSoup(page.text, 'lxml')
-        page = requests.get(url_weather)
-        if page.status_code == 200:
-            temperature = doc.find_all("div", class_="l")
-            output = temperature[0].div.text.split(':')[1]
-        else:
-            output = None
-        self.ids.weather_label.text = output
+        try:
+            requests.get(url_weather, headers=agent)
+            page = requests.get(url_weather, headers=agent)
+            doc = BeautifulSoup(page.text, 'lxml')
+            if page.status_code == 200:
+                temperature = doc.find_all("div", class_="l")
+                output = temperature[0].div.text.split(':')[1]
+            else:
+                output = "Нет данных"
+        except requests.ConnectionError as er:
+            print(er)
+            output = "WiFi off"
+        finally:
+            self.ids.weather_label.text = output
 
     def login_btn_press(self):
         self.ids.login_img1.source = 'data/login_2.png'
 
     def login_btn_rel(self):
         self.ids.login_img1.source = 'data/login_1.png'
+
+    def cust_button_press(self, value):
+        if len(self.ids.entry.text) < 4:
+            self.ids.entry.text += str(value)
 
     def calculator_abs(self, value, count=count_one):
         if value and count > timedelta(0, 0, 0):
@@ -131,32 +138,40 @@ class HomePage(Screen):
         if value :
             tapemeter_temp = dict()
             try:
-                conn = sqlite3.connect('/database.db')
-                curs = conn.cursor()
-                curs.execute("SELECT * FROM CassetesTime")
-                records = curs.fetchall()
+                connect = sqlite3.connect('../database.db')
+                cursor = connect.cursor()
+                cursor.execute("SELECT * FROM CassetesTime")
+                records_temp = cursor.fetchall()
             except FileNotFoundError:
                 mess = "База данных не найдена!"
                 return mess
-
-            for r in records:
-                tapemeter_temp[r[0]] = r[1]
-            min_c = min(tuple(tapemeter_temp.keys()))
-            x1, x2 = '0', '0'
-            for k, v in tapemeter_temp.items():
-                if abs(k - int(value)) < min_c:
-                    x1 = int(k)
-            for k, v in tapemeter_temp.items():
-                if abs(k - int(value)) < min_c and k > x1:
-                    x2 = int(k)
-            y1 = datetime.strptime(tapemeter_temp[x1], "%H:%M:%S")
-            y2 = datetime.strptime(tapemeter_temp[x2], "%H:%M:%S")
-            s = (((int(value) - x1) / (x2 - x1)) * (y2 - y1)) + y1
-            tape_side = timedelta(hours=s.hour, minutes=s.minute,
-                                  seconds=s.second)
-            tape_len = tape_side * 2
-            self.display_cass.text = str(tape_len)
-            self.display_side.text = str(tape_side)
+            if len(records_temp):
+                for r in records_temp:
+                    tapemeter_temp[r[0]] = r[1]
+                min_c = min(tuple(tapemeter_temp.keys()))
+                max_c = max(tuple(tapemeter_temp.keys()))
+                if min_c < int(value) < max_c:
+                    x1, x2 = '0', '0'
+                    for k, v in tapemeter_temp.items():
+                        if abs(k - int(value)) < min_c:
+                            x1 = int(k)
+                    for k, v in tapemeter_temp.items():
+                        if abs(k - int(value)) < min_c and k > x1:
+                            x2 = int(k)
+                    y1 = datetime.strptime(tapemeter_temp[x1], "%H:%M:%S")
+                    y2 = datetime.strptime(tapemeter_temp[x2], "%H:%M:%S")
+                    s = (((int(value) - x1) / (x2 - x1)) * (y2 - y1)) + y1
+                    tape_side = timedelta(hours=s.hour, minutes=s.minute,
+                                          seconds=s.second)
+                    tape_len = tape_side * 2
+                    self.display_cass.text = str(tape_len)
+                    self.display_side.text = str(tape_side)
+                else:
+                    self.display_cass.text = "UNIQUE"
+                    self.display_side.text = "LENGHT"
+            else:
+                self.display_cass.text = "NO"
+                self.display_side.text = "DATA"
         else:
             self.ids.delete_left.color = (1, 0, 0, 1)
             self.ids.delete_right.color = (1, 0, 0, 1)
@@ -188,9 +203,7 @@ class DataPage(Screen):
 
     curs.execute("""CREATE TABLE if not exists CassetesTime
                     (counter INT,
-                    time INT DEFAULT 0,
-                    date INT timestamp
-                    )""")
+                    time INT DEFAULT 0)""")
     # commit changes:
     conn.commit()
 
@@ -201,8 +214,8 @@ class DataPage(Screen):
             time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
             self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
             curs.execute(
-                "INSERT INTO CassetesTime VALUES (:counter, :time,:date)",
-                {'counter': counter, 'time': time_cell, 'date': now})
+                "INSERT INTO CassetesTime VALUES (:counter, :time)",
+                {'counter': counter, 'time': time_cell})
             grab_records()
             one = cal_average(tapemeter)
             cass = len(tapemeter)
@@ -216,15 +229,26 @@ class DataPage(Screen):
         conn.commit()
 
     def save_data(self):
-        with open('../backup.bin', "wb") as f:
-            pickle.dump(tapemeter, f)
+        with open('../backup.bin', "wb") as f_save:
+            pickle.dump(tapemeter, f_save)
         self.ids.update_label.text = "Сохранено на SD! " + now
 
     def restore_data(self):
-        with open('../backup.bin', "rb") as f:
-            temp_dict = pickle.load(f)
+        with open('../backup.bin', "rb") as f_rest:
+            temp_dict = pickle.load(f_rest)
             found_records = str(len(temp_dict.keys()))
             self.ids.update_label.text = f"Найдено {found_records} записей!"
+        sqlite_connection = sqlite3.connect('../database.db')
+        cursor = sqlite_connection.cursor()
+        cursor.execute("DROP TABLE CassetesTime IF EXIST")
+        sqlite_insert_query = """
+                                INSERT INTO CassetesTime
+                                (counter, time)
+                                 VALUES (?, ?);"""
+        cursor.executemany(sqlite_insert_query, list(temp_dict.items()))
+        self.ids.update_label.text = f"{found_records} записей добалено!"
+        sqlite_connection.commit()
+        cursor.close()
 
     # def read_data(self):
 
@@ -242,7 +266,7 @@ class DataPage(Screen):
     #     credentials = service_account.Credentials.from_service_account_file(
     #         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     #     service = build('drive', 'v3', credentials=credentials)
-    #     file_path = 'database.db'
+    #     file_path = '../database.db'
     #     media = MediaFileUpload(file_path, resumable=True)
     #     updated_file = service.files().update(
     #         fileId=settings['database_id'],
