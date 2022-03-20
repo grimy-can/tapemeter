@@ -1,9 +1,11 @@
 #: import utils kivy.utils
 
 PageManager:
+    id:manager
     HomePage:
-        id:home
+        id: home
     DataPage:
+        id: data
     SettingsPage:
     DataScroll:
 
@@ -30,7 +32,6 @@ PageManager:
     display_cass: cass
     display_model: model
     display_time: time_label
-
     FloatLayout:
         Image:
             source:'data/logo.png'
@@ -365,8 +366,10 @@ PageManager:
             input_filter: 'int'
             pos_hint: {"x":0.4, "top": 0.65}
             size_hint: 0.2, 0.06
+            halign: 'center'
+            valign: 'center'
             text_size: self.size
-            font_size: (root.width + root.height) / 50
+            font_size: (root.width + root.height) / 40
         Label:
             id: timer_label
             pos_hint: {"x":0, "top": 0.58}
@@ -388,7 +391,9 @@ PageManager:
             pos_hint: {"x":0.372, "top": 0.58}
             size_hint: 0.26, 0.06
             text_size: self.size
-            font_size: (root.width + root.height) / 50
+            font_size: (root.width + root.height) / 40
+            halign: 'center'
+            valign: 'center'
         Button:
             id: add_btn
             pos_hint: {"x":0.33, "top": 0.51}

@@ -229,26 +229,28 @@ class DataPage(Screen):
         conn.commit()
 
     def save_data(self):
-        with open('../backup.bin', "wb") as f_save:
-            pickle.dump(tapemeter, f_save)
-        self.ids.update_label.text = "Сохранено на SD! " + now
+        pass
+        # with open('../backup.bin', "wb") as f_save:
+        #     pickle.dump(tapemeter, f_save)
+        # self.ids.update_label.text = "Сохранено на SD! " + now
 
     def restore_data(self):
-        with open('../backup.bin', "rb") as f_rest:
-            temp_dict = pickle.load(f_rest)
-            found_records = str(len(temp_dict.keys()))
-            self.ids.update_label.text = f"Найдено {found_records} записей!"
-        sqlite_connection = sqlite3.connect('../database.db')
-        cursor = sqlite_connection.cursor()
-        cursor.execute("DROP TABLE CassetesTime IF EXIST")
-        sqlite_insert_query = """
-                                INSERT INTO CassetesTime
-                                (counter, time)
-                                 VALUES (?, ?);"""
-        cursor.executemany(sqlite_insert_query, list(temp_dict.items()))
-        self.ids.update_label.text = f"{found_records} записей добалено!"
-        sqlite_connection.commit()
-        cursor.close()
+        pass
+        # with open('../backup.bin', "rb") as f_rest:
+        #     temp_dict = pickle.load(f_rest)
+        #     found_records = str(len(temp_dict.keys()))
+        #     self.ids.update_label.text = f"Найдено {found_records} записей!"
+        # sqlite_connection = sqlite3.connect('../database.db')
+        # cursor = sqlite_connection.cursor()
+        # cursor.execute("DROP TABLE CassetesTime IF EXIST")
+        # sqlite_insert_query = """
+        #                         INSERT INTO CassetesTime
+        #                         (counter, time)
+        #                          VALUES (?, ?);"""
+        # cursor.executemany(sqlite_insert_query, list(temp_dict.items()))
+        # self.ids.update_label.text = f"{found_records} записей добалено!"
+        # sqlite_connection.commit()
+        # cursor.close()
 
     # def read_data(self):
 
@@ -290,7 +292,22 @@ class DataScroll(Screen):
 
 
 class PageManager(ScreenManager):
-    pass
+
+    def __init__(self, **kwargs):
+        super(PageManager, self).__init__(**kwargs)
+        Window.bind(on_keyboard=self.on_key)
+
+    def on_key(self, window, key, *args):
+        if key == 27:  # the esc key
+            if self.current_screen.name == "home":
+                return True  # exit the app from this page
+            elif self.current_screen.name == "data":
+                self.transition.direction = 'right'
+                self.current = "home"
+                return True  # do not exit the app
+            elif self.current_screen.name == "":
+                self.current = "home"
+                return True  # do not exit the app
 
 
 gui = Builder.load_file("kvcode.kv")
