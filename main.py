@@ -307,7 +307,11 @@ class DataPage(Screen):
 
 
 class SettingsPage(Screen):
-    pass
+    def selected(self, filename):
+        try:
+            self.ids.image_view.source = filename[0]
+        except:
+            pass
 
 
 class DataScroll(Screen):
@@ -328,8 +332,9 @@ class PageManager(ScreenManager):
                 self.transition.direction = 'right'
                 self.current = "home"
                 return True  # do not exit the app
-            elif self.current_screen.name == "":
+            elif self.current_screen.name == "settings":
                 self.current = "home"
+                self.transition.direction = 'left'
                 return True  # do not exit the app
 
 
