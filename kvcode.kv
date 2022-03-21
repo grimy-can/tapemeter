@@ -12,17 +12,17 @@ PageManager:
 #<Button>:
 #    font_size: (root.width + root.height) / 20
 <CustButton@Button>:
-    background_normal: ''
-    background_color:(90/255, 90/255, 90/255, 1)
+    canvas.before:
+        Color:
+            rgba: (240/255, 148/255,22/255, 1)  #(55/255, 55/255, 55/255, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
     font_size: (root.width + root.height) / 5
-    on_press: self.background_color = (200/255, 200/255, 200/255, 1)
-    on_release: self.background_color = (90/255, 90/255, 90/255, 1)
-    on_press: self.color = (0, 0, 0, 1)
-    on_release: self.color = (1, 1, 1, 1)
-#    on_release: self.background_color = (90/255, 90/255, 90/255, 1)
+#    on_press: self.color = (240/255, 148/255,22/255, 1)
 #    on_release: self.color = (1, 1, 1, 1)
-<MenuButton@Button>:
 
+<MenuButton@Button>:
     font_size: (root.width + root.height) / 10
 
 
@@ -33,21 +33,25 @@ PageManager:
     display_model: model
     display_time: time_label
     FloatLayout:
+        size: root.width, root.height
         Image:
             source:'data/logo.png'
-            pos_hint: {"x":0, "top": 1}
+            pos_hint: {"x": 0, "top": 1}
             text: "LOGO"
-            size_hint: .8, .15
+            size_hint: .8, .12
         Button:
+            id: funct_choice
             background_normal: ''
             background_color:(0,0,0,0)
             size_hint: .2, .13
             pos_hint: {"x":.8, "top": 1}
-            on_release:root.weather()
+            on_press: root.calculator_rel(entry.text)
             on_press: root.login_btn_press()
             on_release: root.login_btn_rel()
-            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
-            on_release: self.background_color = (0,0,0,0)
+            on_release: delete_left.color = (1, 1, 1, 1)
+            on_release: delete_right.color = (1, 1, 1, 1)
+#            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
+#            on_release: self.background_color = (0,0,0,0)
             Image:
                 id: login_img1
                 size_hint_y: None
@@ -83,8 +87,8 @@ PageManager:
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .85}
             size_hint: 1, .07
-            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
-            on_release: self.background_color = (1, 1, 1, 1)
+#            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
+#            on_release: self.background_color = (1, 1, 1, 1)
             on_release:
                 app.root.current = 'data'
                 root.manager.transition.direction = 'left'
@@ -122,21 +126,18 @@ PageManager:
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0.67, 'top': .78}
             size_hint: .33, .07
-            on_press: entry.text = ""
+            on_press: entry.text = entry.text[0:-1]
             on_press: side.text = ""
             on_press: cass.text = ""
-
         Button:
             text: "ВРЕМЯ ЗВУЧАНИЯ"
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .71}
             size_hint: 1, .072
             on_press: root.calculator_abs(entry.text)
-            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
-            on_release: self.background_color = (1, 1, 1, 1)
+            on_release: model.color = (1, 1, 1, 1)
             on_release: delete_left.color = (1, 1, 1, 1)
             on_release: delete_right.color = (1, 1, 1, 1)
-
         Label:
             text: "СТОРОНА"
             background_color: (80/255, 80/255, 80/255, 1)
@@ -186,22 +187,20 @@ PageManager:
                     size: self.size
                     pos: self.pos
         GridLayout:
-            pos_hint: {'x': 0, 'y': .09}
-            size_hint: 1, .4
+            pos_hint: {'x': 0, 'y': .17}
+            size_hint: 1, .33
             id: calculator
             display: entry
             cols: 3
-            padding: 10
-            spacing: 10
+            padding: 15
+            spacing: 15
             CustButton:
                 text: "7"
                 id: cus_button7
                 on_press: root.cust_button_press(7)
-#                on_press: entry.text += self.text
             CustButton:
                 text: "8"
                 on_press: root.cust_button_press(8)
-#                on_press: entry.text += self.text
             CustButton:
                 text: "9"
                 on_press: root.cust_button_press(9)
@@ -223,32 +222,36 @@ PageManager:
             CustButton:
                 text: "1"
                 on_press: root.cust_button_press(1)
-            Button:
-                id: funct_choice
-                on_press: self.background_color = (55/255, 55/255, 55/255, 1)
-                on_release: self.background_color = (1, 1, 1, 1)
-                text: "f1"
-                on_press: root.calculator_rel(entry.text)
-                on_press: self.text = "f2"
-                on_release: self.text = "f1"
-                on_release: root.calculator_abs(entry.text)
-            CustButton:
-                text: "0"
-                on_press: entry.text += self.text
-            CustButton:
-                text: "<|"
-                on_press: entry.text = entry.text[0:-1]
-
-
         BoxLayout:
-            padding: 5
-            pos_hint: {'x': 0.25, 'y': 0}
-            size_hint: 0.5, 0.088
+            pos_hint: {'center_x': 0.5, 'top': .19}
+            size_hint: 0.33, .11
+            padding: 10
+            spacing: 15
+            Button:
+                canvas.before:
+                    Color:
+                        rgba: (240/255, 148/255,22/255, 1)  #(55/255, 55/255, 55/255, 1)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                font_size: (root.width + root.height) / 35
+                text: "0"
+                on_press: root.cust_button_press(0)
+        BoxLayout:
+            padding: 10
+            spacing: 15
+#            pos_hint: {'x': 0, 'y': 0}
+            size_hint: 1, 0.09
             cols:1
+            MenuButton:
+                text:'конпка 1'
+                on_release: pass
             MenuButton:
                 text:'Выход'
                 on_release: app.exit_app()
-
+            MenuButton:
+                text:'кнопка 2'
+                on_release: pass
 <DataPage>:
     name:"data"
     counter_input: counter_input
@@ -333,7 +336,6 @@ PageManager:
             background_color: (100/255, 100/255, 100/255, 1)
             text: "НОВОЕ ПОКАЗАНИЕ:"
             font_size: (root.width + root.height) / 50
-            on_press: background_color: (100/255, 100/255, 100/255, 1)
             on_press: counter_input.text = ""
             on_press: timer_input.text = ""
             on_release: self.text = "НОВОЕ ПОКАЗАНИЕ:"
@@ -344,7 +346,7 @@ PageManager:
             text_size: self.size
             font_size: (root.width + root.height) / 50
             halign: 'left'
-            text:root.readings
+            text:root.readings + ' сек.'
         Label:
             id: counter_label
             pos_hint: {"x":0, "top": 0.65}
@@ -375,7 +377,7 @@ PageManager:
             pos_hint: {"x":0, "top": 0.58}
             size_hint: 1, 0.06
             background_color: (100/255, 100/255, 100/255, 1)
-            text: "ВРЕМЯ:                            Ч:М:С  "
+            text: "ВРЕМЯ:                              Ч:М:С  "
             color: (1,1,1,1)
             font_size: (root.width + root.height) / 60
             canvas.before:
@@ -388,15 +390,15 @@ PageManager:
             id: timer_input
             multiline: False
             input_type: 'datetime'
-            pos_hint: {"x":0.372, "top": 0.58}
-            size_hint: 0.26, 0.06
+            pos_hint: {"x":0.35, "top": 0.58}
+            size_hint: 0.3, 0.06
             text_size: self.size
             font_size: (root.width + root.height) / 40
             halign: 'center'
             valign: 'center'
         Button:
             id: add_btn
-            pos_hint: {"x":0.33, "top": 0.51}
+            pos_hint: {"x":0.325, "top": 0.51}
             size_hint: 0.35, 0.06
             color: (0,0,0,1)
             background_normal: ''
@@ -408,10 +410,38 @@ PageManager:
             halign: 'center'
             valign: 'middle'
             on_press: root.add_new_reading(counter_input.text, timer_input.text)
-            on_press: self.background_color = (100/255, 100/255, 100/255, 1)
-            on_release: self.background_color = (240/255, 148/255,22/255, 1)
-            on_release: timer_label.color = (1, 1, 1, 1)
-            on_release: counter_label.color = (1, 1, 1, 1)
+            on_release: counter_label.color = (1,1,1,1)
+            on_release: timer_label.color = (1,1,1,1)
+        ToggleButton:
+            id: timer_start
+            group:'timer'
+            pos_hint: {"x":0.04, "top": 0.51}
+            size_hint: 0.24, 0.06
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'ТАЙМЕР ПУСК'
+            text_size: self.size
+            font_size: (root.width + root.height) / 65
+            halign: 'center'
+            valign: 'middle'
+            on_press: root.timer_start()
+        ToggleButton:
+            id: timer_stop
+            group:'timer'
+            pos_hint: {"x":0.72, "top": 0.51}
+            size_hint: 0.25, 0.06
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'ТАЙМЕР СТОП'
+            text_size: self.size
+            font_size: (root.width + root.height) / 65
+            halign: 'center'
+            valign: 'middle'
+            on_press: root.timer_stop()
         Label:
             id: update_label
             pos_hint: {"x":0, "top": 0.15}

@@ -130,6 +130,8 @@ class HomePage(Screen):
                 microseconds=tape_side.microseconds)
             self.display_cass.text = str(tape_len)
             self.display_side.text = str(tape_side)
+        elif value and count == timedelta(0, 0, 0):
+            self.ids.model.color = (1, 0, 0, 1)
         else:
             self.ids.delete_left.color = (1, 0, 0, 1)
             self.ids.delete_right.color = (1, 0, 0, 1)
@@ -200,6 +202,8 @@ class DataPage(Screen):
     count_one = ObjectProperty(str(count_one.total_seconds()))
     current_base = ObjectProperty(current_base)
     database_date = ObjectProperty(database_date)
+    timer_zero = datetime(year=1900, month=1, day=1,
+                          hour=0, minute=0, second=0)
 
     curs.execute("""CREATE TABLE if not exists CassetesTime
                     (counter INT,
@@ -251,6 +255,25 @@ class DataPage(Screen):
         # self.ids.update_label.text = f"{found_records} записей добалено!"
         # sqlite_connection.commit()
         # cursor.close()
+
+    def timer_start(self):
+        if self.ids.timer_start.state == 'down':
+            Clock.schedule_interval(self.update_timer, 1)
+            self.ids.add_label.text = self.timer_zero.strftime('%H:%M:%S')
+
+    def update_timer(self, *args):
+        if self.ids.timer_start.state == 'down':
+            self.timer_zero += timedelta(hours=0, minutes=0, seconds=1)
+            delta = self.timer_zero
+            self.ids.add_label.text = delta.time().strftime('%H:%M:%S')
+        else:
+            return False
+
+    def timer_stop(self):
+        self.timer_zero = datetime(year=1900, month=1, day=1,
+                              hour=0, minute=0, second=0)
+        self.ids.timer_input.text = self.ids.add_label.text
+        self.ids.add_label.text = 'ТАЙМЕР ОСТАНОВЛЕН'
 
     # def read_data(self):
 
@@ -314,6 +337,7 @@ gui = Builder.load_file("kvcode.kv")
 
 
 class TapeApp(App):
+
     def build(self):
         # self.home = HomePage()
         Clock.schedule_interval(self.update_clock, 1)
