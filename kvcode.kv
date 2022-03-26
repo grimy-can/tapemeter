@@ -1,4 +1,5 @@
 #: import utils kivy.utils
+#: import Factory kivy.factory.Factory
 
 PageManager:
     id:manager
@@ -7,10 +8,24 @@ PageManager:
     DataPage:
         id: data
     SettingsPage:
-    DataScroll:
+        id: settings
 
-#<Button>:
-#    font_size: (root.width + root.height) / 20
+<ModelLabel1@Label>
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+    size_hint: 1, 1
+<ModelLabel2@Label>
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    size_hint: 0.5, 1
+<ModelLabel3@Label>
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    size_hint: 0.5, 1
+
 <CustButton@Button>:
     canvas.before:
         Color:
@@ -19,8 +34,13 @@ PageManager:
             pos: self.pos
             size: self.size
     font_size: (root.width + root.height) / 5
-#    on_press: self.color = (240/255, 148/255,22/255, 1)
-#    on_release: self.color = (1, 1, 1, 1)
+
+<ModelButton@Button>:
+    text_size: self.size
+    font_size: (root.width + root.height) * 2
+    color: (0,0,0,1)
+    background_normal: ''
+    background_color:(240/255, 133/255,22/255, 0.9)
 
 <MenuButton@Button>:
     font_size: (root.width + root.height) / 10
@@ -28,19 +48,102 @@ PageManager:
     background_normal: ''
     background_color:(240/255, 133/255,22/255, 0.9)
 
-#<RoundButton@Button>:
-#    font_size: (root.width + root.height) / 7
-#    color: (0,0,0,1)
-#    background_normal: ''
-#    background_color: (0,0,0,0)
-#    canvas.before:
-#        Color:
-#            rgba: (240/255, 133/255,22/255, 0.9)
-#        RoundedRectangle:
-#            size: 95, 35
-#            pos: self.pos
-#            radius: [20]
+<SetDefModel@Popup>
+    auto_dismiss: True
+    size_hint: 0.92, 0.5
+    pos_hint: {'x': 0.04, 'y': 0.35}
+    title: "MОДЕЛЬ ПО УМОЛЧАНИЮ:"
+    title_size: (root.width + root.height) / 40
+    BoxLayout:
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            size_hint: 1, 0.6
+            pos_hint: {'x': 0, 'y': 0.75}
+            Label:
+                id: 'model1'
+                text: app.root.ids.settings.model1
+            CheckBox:
+                group: 'models'
+                on_active: app.root.on_checkbox(self, self.active, 'model1')
+            Label:
+                text: app.root.ids.settings.model2
+            CheckBox:
+                group: 'models'
+                on_active: app.root.on_checkbox(self, self.active, 'model2')
+            Label:
+                text: app.root.ids.settings.model3
+            CheckBox:
+                group: 'models'
+                on_active: app.root.on_checkbox(self, self.active, 'model3')
+            Label:
+                text: app.root.ids.settings.model4
+            CheckBox:
+                group: 'models'
+                on_active: app.root.on_checkbox(self, self.active, 'model4')
+#        BoxLayout:
+#            size_hint: 1, 0.25
+#            pos_hint: {'x': 0, 'y': 0.15}
+        Button:
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size_hint: 0.33, 0.08
+            pos_hint: {'x': 0.33, 'y': 0}
+            text: "ОК"
+            text_size: self.size
+            font_size: (root.width + root.height) / 25
+            color: (0,0,0,1)
+            halign: 'center'
+            valign: 'middle'
+            on_release: root.dismiss()
 
+<CreateBasePop>:
+    auto_dismiss: True
+    size_hint: 0.85, 0.5
+    pos_hint: {'x': 0.075, 'y': 0.3}
+    title: "База данных для магнитофона:"
+    BoxLayout:
+        padding: 15
+        spacing: 15
+        orientation: 'vertical'
+        ModelTextInput:
+            hint_text: '18 CHARACTERS'
+            font_name: 'data/font/AgencyFB.ttf'
+            id: input_model
+            multiline: False
+            text_size: self.size
+            font_size: (root.width + root.height) / 18
+            halign: 'center'
+            valign: 'center'
+        Label:
+            id: add_model_label
+            size_hint: 1, 1
+        Button:
+            size_hint: .6, 0.9
+            pos_hint: {"x": 0.2, "top":1}
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'СОЗДАТЬ'
+            text_size: self.size
+            font_size: (root.width + root.height) / 25
+            color: (0,0,0,1)
+            halign: 'center'
+            valign: 'middle'
+            on_press: root.add_model(input_model.text)
+        Button:
+            size_hint: .6, 0.9
+            pos_hint: {"x": 0.2, "top":1}
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: "ОK"
+            text_size: self.size
+            font_size: (root.width + root.height) / 25
+            color: (0,0,0,1)
+            halign: 'center'
+            valign: 'middle'
+            on_release: root.dismiss()
 
 <HomePage>:
     name: "home"
@@ -66,8 +169,6 @@ PageManager:
             on_release: root.login_btn_rel()
             on_release: delete_left.color = (1, 1, 1, 1)
             on_release: delete_right.color = (1, 1, 1, 1)
-#            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
-#            on_release: self.background_color = (0,0,0,0)
             Image:
                 id: login_img1
                 size_hint_y: None
@@ -77,35 +178,49 @@ PageManager:
                 source:'data/login_1.png'
                 center_x:self.parent.center_x
                 center_y:self.parent.center_y
-        Label:
-            id: time_label
-            size_hint: .1, .025
-            pos_hint: {"x":.1, "top": .87}
-            text: root.now
-            font_size:(root.width + root.height) / 60
-            color: (1,1,1,1)
-            bold: False
-            outline_color: (0,0,0,1)
-            outline_width:1
-        Label:
-            id: weather_label
-            size_hint: .2, .03
-            pos_hint: {"x":.5, "top": .878}
-            text: "Температура н.в."
-            font_size:(root.width + root.height) / 60
-            color: (1,1,1,1)
-            bold: False
-            outline_color: (0,0,0,1)
-            outline_width:1
+        BoxLayout:
+            padding: 10, 0, 10 ,0
+            orientation: 'horizontal'
+            size_hint: 1, .05
+            pos_hint: {"x":0, "top": .895}
+            Label:
+                id: time_label
+#                size_hint: 0.4, .02
+                text: root.now
+                halign: 'left'
+                valign: 'middle'
+                text_size: self.size
+                font_size:(root.width + root.height) / 50
+                color: (1,1,1,1)
+                bold: False
+                outline_color: (0,0,0,1)
+                outline_width:1
+            Label:
+                id: date_label
+#                size_hint: .35, .035
+                text: root.date
+                halign: 'left'
+                valign: 'middle'
+                text_size: self.size
+                font_size:(root.width + root.height) / 50
+                color: (1,1,1,1)
+                bold: False
+                outline_color: (0,0,0,1)
+                outline_width:1
+            Label:
+#                text: 'FUNCTION'
+                font_size:(root.width + root.height) / 50
+                text_size: self.size
+                halign: 'right'
+                valign: 'middle'
+
         Button:
             id: model
-            text:root.current_base
+            text: root.current_base
             font_size: (root.width + root.height) / 45
             pos_hint: {'x': 0, 'top': .85}
             size_hint: 1, .07
-#            on_press: self.background_color = (55/255, 55/255, 55/255, 1)
-#            on_release: self.background_color = (1, 1, 1, 1)
-            on_release: pass
+            on_press: Factory.SetDefModel().open()
         Button:
             id: delete_left
             text: ">>>"
@@ -200,60 +315,90 @@ PageManager:
                 Rectangle:
                     size: self.size
                     pos: self.pos
-        GridLayout:
-            pos_hint: {'x': 0, 'y': .07}
-            size_hint: 1, .43
-            id: calculator
-            display: entry
-            cols: 3
-            padding: 25
-            spacing: 20
-            CustButton:
-                text: "7"
-                id: cus_button7
-                on_press: root.cust_button_press(7)
-            CustButton:
-                text: "8"
-                on_press: root.cust_button_press(8)
-            CustButton:
-                text: "9"
-                on_press: root.cust_button_press(9)
-            CustButton:
-                text: "4"
-                on_press: root.cust_button_press(4)
-            CustButton:
-                text: "5"
-                on_press: root.cust_button_press(5)
-            CustButton:
-                text: "6"
-                on_press: root.cust_button_press(6)
-            CustButton:
-                text: "3"
-                on_press: root.cust_button_press(3)
-            CustButton:
-                text: "2"
-                on_press: root.cust_button_press(2)
-            CustButton:
-                text: "1"
-                on_press: root.cust_button_press(1)
-            Image:
-                source: 'data/login_3.png'
-            CustButton:
-                text: "0"
-                on_press: root.cust_button_press(0)
-            Image:
-                source: 'data/login_3.png'
-
+        BoxLayout:
+            orientation: 'horizontal'
+            GridLayout:
+                pos_hint: {'x': 0, 'y': .1}
+                size_hint: 0.66, .4
+                id: calculator
+                display: entry
+                cols: 3
+                padding: 35
+                spacing: 35
+                CustButton:
+                    text: "7"
+                    id: cus_button7
+                    on_press: root.cust_button_press(7)
+                CustButton:
+                    text: "8"
+                    on_press: root.cust_button_press(8)
+                CustButton:
+                    text: "9"
+                    on_press: root.cust_button_press(9)
+                CustButton:
+                    text: "4"
+                    on_press: root.cust_button_press(4)
+                CustButton:
+                    text: "5"
+                    on_press: root.cust_button_press(5)
+                CustButton:
+                    text: "6"
+                    on_press: root.cust_button_press(6)
+                CustButton:
+                    text: "3"
+                    on_press: root.cust_button_press(3)
+                CustButton:
+                    text: "2"
+                    on_press: root.cust_button_press(2)
+                CustButton:
+                    text: "1"
+                    on_press: root.cust_button_press(1)
+                Image:
+                    source: 'data/login_3.png'
+                CustButton:
+                    text: "0"
+                    on_press: root.cust_button_press(0)
+                Image:
+                    source: 'data/login_3.png'
+            BoxLayout:
+                padding: 10
+                spacing: 10
+                orientation: 'vertical'
+                pos_hint: {'x': 0.5, 'y': .1}
+                size_hint: 0.34, .4
+                Label:
+                    size_hint: 1, .4
+                    text: "МОДЕЛЬ:"
+                    text_size: self.size
+                    valign: 'top'
+                    halign: 'center'
+                ToggleButton:
+                    state: 'down'
+                    group: 'models'
+                    text: "№ 1"
+                    on_release: root.display_model.text = root.manager.ids.settings.model1
+                ToggleButton:
+                    group: 'models'
+                    text: "№ 2"
+                    on_release: root.display_model.text = root.manager.ids.settings.model2
+                ToggleButton:
+                    text: "№ 3"
+                    group: 'models'
+                    on_release: root.display_model.text = root.manager.ids.settings.model3
+                ToggleButton:
+                    text: "№ 4"
+                    group: 'models'
+                    on_release: root.display_model.text = root.manager.ids.settings.model4
         BoxLayout:
             padding: 10
             spacing: 15
 #            pos_hint: {'x': 0, 'y': 0}
-            size_hint: 1, 0.11
+            size_hint: 1, 0.12
             cols:1
             MenuButton:
                 size_hint: 1, 0.7
                 pos_hint: {"x": 0.1, "y": 0.15}
-                text:'НАСТРОЙКИ'
+                text:'МОДЕЛИ'
                 on_release:
                     app.root.current = "settings"
                     root.manager.transition.direction = 'right'
@@ -265,7 +410,7 @@ PageManager:
             MenuButton:
                 size_hint: 1, 0.7
                 pos_hint: {"x": 0.9, "y": 0.15}
-                text:'БАЗА ДАННЫХ'
+                text:'МОДЕЛЬ'
                 on_release:
                     app.root.current = 'data'
                     root.manager.transition.direction = 'left'
@@ -321,7 +466,7 @@ PageManager:
             size_hint: 0.95, 0.1
             text_size: self.size
             font_size: (root.width + root.height) / 50
-            text:root.current_base
+            text: root.current_base
             halign: 'left'
         Label:
             pos_hint: {"x":0, "top": 0.895}
@@ -337,7 +482,7 @@ PageManager:
             text_size: self.size
             font_size: (root.width + root.height) / 50
             halign: 'left'
-            text:root.count_one
+            text: root.count_one   + ' сек.'
         Label:
             pos_hint: {"x":0, "top": 0.84}
             size_hint: 0.5, 0.1
@@ -363,7 +508,7 @@ PageManager:
             text_size: self.size
             font_size: (root.width + root.height) / 50
             halign: 'left'
-            text:root.readings + ' сек.'
+            text:root.readings
         Label:
             id: counter_label
             pos_hint: {"x":0, "top": 0.65}
@@ -460,6 +605,7 @@ PageManager:
             valign: 'middle'
             on_press: root.timer_stop()
             on_press: text: 'ТАЙМЕР СТОП'
+
         Label:
             id: update_label
             pos_hint: {"x":0, "top": 0.15}
@@ -508,12 +654,10 @@ PageManager:
             pos_hint: {"x":0.32, "top": 0.08}
             size_hint: .35, .07
 
-
 <SettingsPage>:
     name:"settings"
     id: sett_layout
     FloatLayout:
-
         Button:
             pos_hint: {"x":0.35, "top": 1}
             size_hint: 0.65, 0.07
@@ -547,16 +691,97 @@ PageManager:
                 Rectangle:
                     size: self.size
                     pos: self.pos
-        FileChooserListView:
-            id: filechooser
+        Label:
             pos_hint: {"x":0, "top": 0.93}
-            size_hint: 1, 0.45
-            on_selection: sett_layout.selected(filechooser.selection)
-        Image:
-            id: image_view
-            pos_hint: {"x":0, "top": 0.4}
-            size_hint: 1, 0.4
-            source:
+            size_hint: 1, 0.04
+            id: new_base_label
+        GridLayout:
+            padding: 15
+            pos_hint: {"x":0, "top": 0.92}
+            size_hint: 1, 0.3
+            rows: 5
+            cols: 3
+            ModelLabel1:
+                text: "МОДЕЛЬ:"
+            ModelLabel2:
+                text: "СЧЁТЧИК:"
+            ModelLabel3:
+                text: "КАССЕТ:"
+            ModelLabel1:
+                text: root.model1
+            ModelLabel2:
+                text: 'wer' + ' сек.'
+            ModelLabel3:
+                text:'wer'
+            ModelLabel1:
+                text: root.model2
+            ModelLabel2:
+                text:'wer' + ' сек.'
+            ModelLabel3:
+                text:'wer'
+            ModelLabel1:
+                text: root.model3
+            ModelLabel2:
+                text: 'wer' + ' сек.'
+            ModelLabel3:
+                text:'wer'
+            ModelLabel1:
+                text:root.model4
+            ModelLabel2:
+                text:'wer' + ' сек.'
+            ModelLabel3:
+                text:'wer'
+        BoxLayout:
+            orientation: 'vertical'
+            pos_hint: {"x":0, "top": 0.68}
+            size_hint: 1, .8
+            Splitter:
+                sizable_from: 'top'
+                TabbedPanel:
+                    do_default_tab: False
+                    TabbedPanelItem:
+                        font_size: '9sp'
+                        text: root.model1
+                        BoxLayout:
+                    TabbedPanelItem:
+                        font_size: '9sp'
+                        text: root.model2
+                        BoxLayout:
+                    TabbedPanelItem:
+                        font_size: '9sp'
+                        text: root.model3
+                        BoxLayout:
+                    TabbedPanelItem:
+                        font_size: '9sp'
+                        text: root.model4
+                        Image:
+                            size_hint_y: None
+                            size_hint_x: None
+                            height: root.height
+                            width: root.width
+                            source:'data/google.png'
+#                            center_x:self.parent.center_x
+#                            center_y:self.parent.center_y
+
+        Button:
+            id: new_base_butt
+            pos_hint: {"center_x":0.5, "top": 0.07}
+            size_hint: 0.45, 0.05
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'ДОБАВИТЬ МОДЕЛЬ'
+            text_size: self.size
+            font_size: (root.width + root.height) / 65
+            halign: 'center'
+            valign: 'middle'
+            on_press: self.text = 'ДОБАВИТЬ МОДЕЛЬ'
+            on_release: Factory.CreateBasePop().open()
+
+
+
+
 
 
 

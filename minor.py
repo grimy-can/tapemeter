@@ -5,9 +5,11 @@ from google.oauth2 import service_account
 import pprint
 import pickle
 import io
+import re
+import sqlite3
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
-with open("data/settings.bin", "rb") as f:
+with open("../settings.bin", "rb") as f:
     settings = pickle.load(f)
 
 current_base = settings['model']
@@ -28,7 +30,7 @@ def cal_average(dic):
 
 def settings_read():
     """create and delete settings for programm"""
-    with open("data/settings.bin", "rb") as f:
+    with open("../settings.bin", "rb") as f:
         s = pickle.load(f)
     print("Настройки программы:")
     act = input("1 - Посмотреть\n"
@@ -42,11 +44,15 @@ def settings_read():
                      "1 - Продолжить\n"
                      "0 - Выход\n")
         if warn == '1':
-            f = open("data/settings.bin", "wb")
+            f = open("../settings.bin", "wb")
             s = {'first_name': None,
                  'last_name': None,
                  'company': 'Grimy Can',
-                 'model': "AD GX-Z5300",
+                 'model': None,
+                 'models': {'model1': [None, None],
+                            'model2': [None, None],
+                            'model3': [None, None],
+                            'model4': [None, None]},
                  'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
                  'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2s',
                  'database_id': '1CRegyaIdKMEF-aZPoGWxP3H4naN8BqYz',
@@ -131,5 +137,9 @@ def update_from_drive():
     finally:
         return None
 
-
+# conn = sqlite3.connect('../database.db')
+# curs = conn.cursor()
+# curs.execute("SELECT * FROM Models")
+# all_models = curs.fetchall()
+# print('SONY V-123' not in [x[1] for x in all_models])
 settings_read()

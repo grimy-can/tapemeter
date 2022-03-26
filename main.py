@@ -4,9 +4,10 @@ from kivy.lang import Builder
 from kivy.uix.textinput import TextInput
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-from kivy.config import Config
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
+from kivy.uix.tabbedpanel import TabbedPanelItem
+from kivy.uix.popup import Popup
 import sqlite3
 import pickle
 import re
@@ -14,7 +15,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-Config.set('kivy', 'keyboard_mode', '')
+# Config.set('kivy', 'keyboard_mode', '')
 Window.size = (720/2.1, 1280/2.1)
 
 
@@ -31,10 +32,50 @@ def cal_average(dic):
     return one_turn
 
 
-now = datetime.today().strftime('%Y-%m-%d')  # Current date
-with open("data/settings.bin", "rb") as f:
+def update_settings(s_dict):
+    """update settings o the programm
+    s_dict = settings.dict, file = settings.bin"""
+    file_path = "../settings.bin"
+    with open(file_path, 'rb+') as file_for_record:
+        set_rec = s_dict
+        pickle.dump(set_rec, file_for_record)
+        print("Настройки сохранены!")
+
+
+now = datetime.today().strftime('%Y-%m-%d')  # Current time
+now_date = datetime.today().strftime('%Y-%m-%d')  # Current date
+try:
+    f = open("../settings.bin", "rb")
     settings = pickle.load(f)
-current_base = settings['model']
+    f.close()
+except FileNotFoundError:
+    f = open("../settings.bin", "wb")
+    s = {'first_name': None,
+         'last_name': None,
+         'company': 'Grimy Can',
+         'model': None,
+         'models': {'model1': ['None', None],
+                    'model2': ['None', None],
+                    'model3': ['None', None],
+                    'model4': ['None', None]},
+         'table': '',
+         'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
+         'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2s',
+         'database_id': '1CRegyaIdKMEF-aZPoGWxP3H4naN8BqYz',
+         'database_date': None}
+    pickle.dump(s, f)
+    f.close()
+    print("Настройки default")
+finally:
+    with open("../settings.bin", "rb") as f:
+        settings = pickle.load(f)
+
+if settings['model'] is None:
+    current_base = ''
+    current_table = ''
+else:
+    current_base = settings['model']
+    current_table = settings['table']
 tapemeter = dict()
 try:
     # create database or connect on:
@@ -42,24 +83,33 @@ try:
     # create a cursor:
     curs = conn.cursor()
     # grab records from database:
-    curs.execute("""CREATE TABLE if not exists CassetesTime
-                        (counter INT,time INT DEFAULT 0)""")
+    curs.execute("CREATE TABLE if not exists Models ("
+                 "id INTEGER PRIMARY KEY autoincrement, model text, "
+                 "model_tabel text)")
     # commit changes:
     conn.commit()
-    curs.execute("SELECT * FROM CassetesTime")
-    records = curs.fetchall()
-    if len(records) > 0:
-        for rec in records:
-            tapemeter[rec[0]] = rec[1]
-        curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        # get from sqlite base :
-        base_models = len(curs.fetchall())
-        if settings['database_date']:
-            database_date = settings['database_date']
+    curs.execute("SELECT * FROM Models")
+    all_models = curs.fetchall()
+    if len(all_models) > 0:
+        if current_base != '':
+            curs.execute(f"SELECT * FROM {current_table}")
+            # get from sqlite base :
+            records = curs.fetchall()
+            if len(records):
+                for rec in records:
+                    tapemeter[rec[0]] = rec[1]
+                count_one = cal_average(tapemeter)
+                readings = len(tapemeter)
+            else:
+                count_one = timedelta(0, 0, 0)
+                readings = 0
+                base_models = 0
+                database_date = ''
         else:
+            count_one = timedelta(0, 0, 0)
+            readings = 0
+            base_models = 0
             database_date = ''
-        count_one = cal_average(tapemeter)
-        readings = len(tapemeter)
     else:
         count_one = timedelta(0, 0, 0)
         readings = 0
@@ -71,20 +121,20 @@ except FileNotFoundError as e:
 
 
 def grab_records():
-    curs.execute("SELECT * FROM CassetesTime")
+    curs.execute(f"SELECT * FROM {current_table}")
     cassetess = curs.fetchall()
     for cass in cassetess:
         tapemeter[cass[0]] = cass[1]
-    curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    # curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
     # get from sqlite base :
 
 
 class HomePage(Screen):
     current_base = ObjectProperty(current_base)
-    base_models = ObjectProperty(base_models)
     now = ObjectProperty(datetime.now().strftime('%H:%M:%S'))
+    date = datetime.today().strftime('%Y-%m-%d')
     display_time = ObjectProperty()
-    output_weather = ObjectProperty(base_models)
+    # output_weather = ObjectProperty(base_models)
 
     def weather(self):
         output = ''
@@ -107,6 +157,13 @@ class HomePage(Screen):
             output = "WiFi off"
         finally:
             self.ids.weather_label.text = output
+
+    def set_current_model(self, value, set):
+        """set default model to settings"""
+        # print(value, set)
+        # settings['model'] = value
+        # settings['table'] = settings['models'][set][1]
+        # update_settings(settings)
 
     def login_btn_press(self):
         self.ids.login_img1.source = 'data/login_2.png'
@@ -137,17 +194,18 @@ class HomePage(Screen):
             self.ids.delete_right.color = (1, 0, 0, 1)
 
     def calculator_rel(self, value):
-        if value :
+        if value:
             tapemeter_temp = dict()
             try:
                 connect = sqlite3.connect('../database.db')
                 cursor = connect.cursor()
-                cursor.execute("SELECT * FROM CassetesTime")
+                cursor.execute(f"SELECT * FROM {current_table}")
                 records_temp = cursor.fetchall()
             except FileNotFoundError:
                 mess = "База данных не найдена!"
                 return mess
-            if len(records_temp):
+            if len(records_temp) >= 2:
+                print(records_temp)
                 for r in records_temp:
                     tapemeter_temp[r[0]] = r[1]
                 min_c = min(tuple(tapemeter_temp.keys()))
@@ -162,9 +220,9 @@ class HomePage(Screen):
                             x2 = int(k)
                     y1 = datetime.strptime(tapemeter_temp[x1], "%H:%M:%S")
                     y2 = datetime.strptime(tapemeter_temp[x2], "%H:%M:%S")
-                    s = (((int(value) - x1) / (x2 - x1)) * (y2 - y1)) + y1
-                    tape_side = timedelta(hours=s.hour, minutes=s.minute,
-                                          seconds=s.second)
+                    s2 = (((int(value) - x1) / (x2 - x1)) * (y2 - y1)) + y1
+                    tape_side = timedelta(hours=s2.hour, minutes=s2.minute,
+                                          seconds=s2.second)
                     tape_len = tape_side * 2
                     self.display_cass.text = str(tape_len)
                     self.display_side.text = str(tape_side)
@@ -197,29 +255,31 @@ class TimerTextInput(TextInput):
         TextInput.insert_text(self, substring, from_undo)
 
 
+class ModelTextInput(TextInput):
+    max_characters = 18
+
+    def insert_text(self, substring, from_undo=False):
+        if len(self.text) > self.max_characters > 0:
+            substring = ""
+        TextInput.insert_text(self, substring, from_undo)
+
+
 class DataPage(Screen):
     readings = ObjectProperty(str(readings))
     count_one = ObjectProperty(str(count_one.total_seconds()))
     current_base = ObjectProperty(current_base)
-    database_date = ObjectProperty(database_date)
-    timer_zero = datetime(year=1900, month=1, day=1,
-                          hour=0, minute=0, second=0)
-
-    curs.execute("""CREATE TABLE if not exists CassetesTime
-                    (counter INT,
-                    time INT DEFAULT 0)""")
-    # commit changes:
-    conn.commit()
+    now = datetime.now()
 
     def add_new_reading(self, counter, timer):
-        # add a record:
+        # add a record to current model:
         if len(counter) and len(timer) \
                 and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
             time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
-            self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
+            print(timer, time_cell)
             curs.execute(
-                "INSERT INTO CassetesTime VALUES (:counter, :time)",
+                f"INSERT INTO {current_table} VALUES (:counter, :time)",
                 {'counter': counter, 'time': time_cell})
+            self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
             grab_records()
             one = cal_average(tapemeter)
             cass = len(tapemeter)
@@ -257,21 +317,20 @@ class DataPage(Screen):
         # cursor.close()
 
     def timer_start(self):
+        self.now = datetime.now()
         if self.ids.timer_start.state == 'down':
             Clock.schedule_interval(self.update_timer, 1)
-            self.ids.add_label.text = self.timer_zero.strftime('%H:%M:%S')
+            self.ids.add_label.text = '0:00:00'
 
     def update_timer(self, *args):
         if self.ids.timer_start.state == 'down':
-            self.timer_zero += timedelta(hours=0, minutes=0, seconds=1)
-            delta = self.timer_zero
-            self.ids.add_label.text = delta.time().strftime('%H:%M:%S')
+            time_count = datetime.today() - self.now
+            self.ids.add_label.text = time_count.__str__()[:-7]
         else:
             return False
 
     def timer_stop(self):
-        self.timer_zero = datetime(year=1900, month=1, day=1,
-                              hour=0, minute=0, second=0)
+        self.now = datetime.today()
         self.ids.timer_input.text = self.ids.add_label.text
         self.ids.add_label.text = 'ТАЙМЕР ОСТАНОВЛЕН'
 
@@ -306,25 +365,56 @@ class DataPage(Screen):
     #     self.ids.update_label.text = message
 
 
+class CreateBasePop(Popup):
+
+    def add_model(self, model):
+        """ add new model to database:"""
+        if model:
+            for i in range(1, 5):
+                if model in [x[1] for x in all_models]:
+                    self.ids.add_model_label.text = \
+                        f"{model} уже в базе".upper()
+                    break
+                elif settings['models'][f'model{i}'][0] == 'None':
+                    model = model.upper()
+                    model_tabel = re.sub("[^А-ЯаA-Za-z0-9]", "", model)
+                    connect = sqlite3.connect('../database.db')
+                    curs_add_model = connect.cursor()
+                    curs_add_model.execute(
+                        "INSERT INTO Models (model, model_tabel) VALUES (?,"
+                        "?)", (model, model_tabel,))
+                    curs_add_model.execute(f"CREATE TABLE {model_tabel} "
+                                           f"(counter INTEGER, time INTEGER)")
+                    connect.commit()
+                    f3 = open("../settings.bin", "rb+")
+                    settings['models'][f'model{i}'] = [model, model_tabel]
+                    pickle.dump(settings, f3)
+                    self.ids.add_model_label.text = f"{model} В БАЗЕ"
+                    break
+                else:
+                    self.ids.add_model_label.text = "База моделей " \
+                                                   "заполнена".upper()
+
+
 class SettingsPage(Screen):
-    def selected(self, filename):
-        try:
-            self.ids.image_view.source = filename[0]
-        except:
-            pass
+    model1 = settings['models']['model1'][0]
+    model2 = settings['models']['model2'][0]
+    model3 = settings['models']['model3'][0]
+    model4 = settings['models']['model4'][0]
 
 
-class DataScroll(Screen):
+class TabbedPanel(TabbedPanelItem):
     pass
 
 
 class PageManager(ScreenManager):
-
+    #handling on BACK - button on device:
     def __init__(self, **kwargs):
         super(PageManager, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.on_key)
 
     def on_key(self, window, key, *args):
+        """action on android button 'back'"""
         if key == 27:  # the esc key
             if self.current_screen.name == "home":
                 return True  # exit the app from this page
@@ -337,6 +427,9 @@ class PageManager(ScreenManager):
                 self.transition.direction = 'left'
                 return True  # do not exit the app
 
+    def on_checkbox(self, instance, value, mod):
+        print(value, mod)
+
 
 gui = Builder.load_file("kvcode.kv")
 
@@ -344,17 +437,18 @@ gui = Builder.load_file("kvcode.kv")
 class TapeApp(App):
 
     def build(self):
-        # self.home = HomePage()
+        # interval calling update clock for time label
         Clock.schedule_interval(self.update_clock, 1)
         return gui
 
     def update_clock(self, *args):
+        # update clock for time label
         self.root.ids.home.ids.time_label.text = \
             datetime.now().strftime('%H:%M:%S')
-    # create database or connect on:
+
 
     def exit_app(self):
-        # close connection sqlite
+        # close connection sqlite and exin app on button "ВЫХОД"
         conn.close()
         self.stop()
 

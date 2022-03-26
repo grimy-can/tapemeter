@@ -29,10 +29,10 @@ source.exclude_dirs = tests, bin, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.2.6
+version = 0.3.0
 
 # (str) Application versioning (method 2)
-# version.regex = __version__ = ['"](.*)['"]
+ #version.regex = __version__ = ['"](.*)['"]
 # version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
@@ -60,7 +60,7 @@ orientation = portrait
 #
 
 #
-#author = © Вадим Рязанов
+author = © Grimy Can
 
 # change the major version of python used by the app
 osx.python_version = 3
@@ -80,7 +80,7 @@ fullscreen = 1
 # red, blue, green, black, white, gray, cyan, magenta, yellow, lightgray,
 # darkgray, grey, lightgrey, darkgrey, aqua, fuchsia, lime, maroon, navy,
 # olive, purple, silver, teal.
-android.presplash_color = 008000
+#android.presplash_color = 008000
 
 # (string) Presplash animation using Lottie format.
 # see https://lottiefiles.com/ for examples and https://airbnb.design/lottie/
