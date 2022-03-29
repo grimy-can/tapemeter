@@ -6,8 +6,6 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
-from kivy.uix.tabbedpanel import TabbedPanelItem
-from kivy.uix.popup import Popup
 import sqlite3
 import pickle
 import re
@@ -28,18 +26,11 @@ def cal_average(dic):
         time_d = timedelta(hours=t.hour, minutes=t.minute,
                            seconds=t.second)
         total_t += time_d
-    one_turn = total_t / total_c
-    return one_turn
-
-
-def update_settings(s_dict):
-    """update settings o the programm
-    s_dict = settings.dict, file = settings.bin"""
-    file_path = "../settings.bin"
-    with open(file_path, 'rb+') as file_for_record:
-        set_rec = s_dict
-        pickle.dump(set_rec, file_for_record)
-        print("Настройки сохранены!")
+    if total_c > 0:
+        one_turn = total_t / total_c
+        return one_turn
+    else:
+        return timedelta(0, 0, 0)
 
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current time
@@ -53,12 +44,7 @@ except FileNotFoundError:
     s = {'first_name': None,
          'last_name': None,
          'company': 'Grimy Can',
-         'model': None,
-         'models': {'model1': ['None', None],
-                    'model2': ['None', None],
-                    'model3': ['None', None],
-                    'model4': ['None', None]},
-         'table': '',
+         'model': 'A&D GX-Z5300',
          'API_key': 'AIzaSyA1XOqp_WF778aez3b0WQI9TxLloOsWBQ8',
          'database_folder': '1VJoUPOPJeSAMEC6gnx_Jo3EHDTUIHP2s',
          'database_id': '1CRegyaIdKMEF-aZPoGWxP3H4naN8BqYz',
@@ -67,15 +53,9 @@ except FileNotFoundError:
     f.close()
     print("Настройки default")
 finally:
-    with open("../settings.bin", "rb") as f:
-        settings = pickle.load(f)
+    f = open("../settings.bin", "rb")
+    settings = pickle.load(f)
 
-if settings['model'] is None:
-    current_base = ''
-    current_table = ''
-else:
-    current_base = settings['model']
-    current_table = settings['table']
 tapemeter = dict()
 try:
     # create database or connect on:
@@ -83,37 +63,22 @@ try:
     # create a cursor:
     curs = conn.cursor()
     # grab records from database:
-    curs.execute("CREATE TABLE if not exists Models ("
-                 "id INTEGER PRIMARY KEY autoincrement, model text, "
-                 "model_tabel text)")
+    curs.execute("CREATE TABLE if not exists Model ("
+                 "counter int, "
+                 "time int)")
     # commit changes:
     conn.commit()
-    curs.execute("SELECT * FROM Models")
-    all_models = curs.fetchall()
-    if len(all_models) > 0:
-        if current_base != '':
-            curs.execute(f"SELECT * FROM {current_table}")
-            # get from sqlite base :
-            records = curs.fetchall()
-            if len(records):
-                for rec in records:
-                    tapemeter[rec[0]] = rec[1]
-                count_one = cal_average(tapemeter)
-                readings = len(tapemeter)
-            else:
-                count_one = timedelta(0, 0, 0)
-                readings = 0
-                base_models = 0
-                database_date = ''
-        else:
-            count_one = timedelta(0, 0, 0)
-            readings = 0
-            base_models = 0
-            database_date = ''
+    curs.execute(f"SELECT * FROM Model")
+    # get from sqlite base :
+    records = curs.fetchall()
+    if len(records):
+        for rec in records:
+            tapemeter[rec[0]] = rec[1]
+        count_one = cal_average(tapemeter)
+        readings = len(tapemeter)
     else:
         count_one = timedelta(0, 0, 0)
         readings = 0
-        base_models = 0
         database_date = ''
 
 except FileNotFoundError as e:
@@ -121,16 +86,19 @@ except FileNotFoundError as e:
 
 
 def grab_records():
-    curs.execute(f"SELECT * FROM {current_table}")
+    curs.execute(f"SELECT * FROM Model")
+    tapes = dict()
     cassetess = curs.fetchall()
     for cass in cassetess:
-        tapemeter[cass[0]] = cass[1]
+        tapes[cass[0]] = cass[1]
+
+    return tapes
     # curs.execute("SELECT name FROM sqlite_master WHERE type='table';")
     # get from sqlite base :
 
 
 class HomePage(Screen):
-    current_base = ObjectProperty(current_base)
+    current_base = settings['model']
     now = ObjectProperty(datetime.now().strftime('%H:%M:%S'))
     date = datetime.today().strftime('%Y-%m-%d')
     display_time = ObjectProperty()
@@ -158,13 +126,6 @@ class HomePage(Screen):
         finally:
             self.ids.weather_label.text = output
 
-    def set_current_model(self, value, set):
-        """set default model to settings"""
-        # print(value, set)
-        # settings['model'] = value
-        # settings['table'] = settings['models'][set][1]
-        # update_settings(settings)
-
     def login_btn_press(self):
         self.ids.login_img1.source = 'data/login_2.png'
 
@@ -175,8 +136,10 @@ class HomePage(Screen):
         if len(self.ids.entry.text) < 4:
             self.ids.entry.text += str(value)
 
-    def calculator_abs(self, value, count=count_one):
-        if value and count > timedelta(0, 0, 0):
+    def calculator_abs(self, value):
+        tapemeter_abs = grab_records()
+        count = cal_average(tapemeter_abs)
+        if value and count:
             tape_len = (count_one * int(float(value)))\
                        * 2 - timedelta(minutes=0, seconds=20)
             # get rid from microseconds:
@@ -199,13 +162,13 @@ class HomePage(Screen):
             try:
                 connect = sqlite3.connect('../database.db')
                 cursor = connect.cursor()
-                cursor.execute(f"SELECT * FROM {current_table}")
+                cursor.execute(f"SELECT * FROM Model")
                 records_temp = cursor.fetchall()
             except FileNotFoundError:
                 mess = "База данных не найдена!"
                 return mess
             if len(records_temp) >= 2:
-                print(records_temp)
+                # print(records_temp)
                 for r in records_temp:
                     tapemeter_temp[r[0]] = r[1]
                 min_c = min(tuple(tapemeter_temp.keys()))
@@ -255,42 +218,40 @@ class TimerTextInput(TextInput):
         TextInput.insert_text(self, substring, from_undo)
 
 
-class ModelTextInput(TextInput):
-    max_characters = 18
-
-    def insert_text(self, substring, from_undo=False):
-        if len(self.text) > self.max_characters > 0:
-            substring = ""
-        TextInput.insert_text(self, substring, from_undo)
-
-
 class DataPage(Screen):
+    current_base = settings['model']
     readings = ObjectProperty(str(readings))
     count_one = ObjectProperty(str(count_one.total_seconds()))
-    current_base = ObjectProperty(current_base)
     now = datetime.now()
 
     def add_new_reading(self, counter, timer):
+        temp_dict = grab_records()
+        if int(counter) not in list(temp_dict.keys()):
         # add a record to current model:
-        if len(counter) and len(timer) \
-                and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
-            time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
-            print(timer, time_cell)
-            curs.execute(
-                f"INSERT INTO {current_table} VALUES (:counter, :time)",
-                {'counter': counter, 'time': time_cell})
-            self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
-            grab_records()
-            one = cal_average(tapemeter)
-            cass = len(tapemeter)
-            self.ids.models.text = str(one.total_seconds())
-            self.ids.readings.text = str(cass)
+            if len(counter) and len(timer) \
+                    and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
+                time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
+                if len(time_cell.split(':')) == 3:
+                    curs.execute(
+                        f"INSERT INTO Model VALUES (:counter, :time)",
+                        {'counter': counter, 'time': time_cell})
+                    self.ids.add_label.text = "НОВОЕ ПОКАЗАНИЕ В БАЗЕ!"
+                    tapemeter = grab_records()
+                    one = cal_average(tapemeter)
+                    cass = len(tapemeter)
+                    self.ids.models.text = str(one.total_seconds())
+                    self.ids.readings.text = str(cass)
+                    # commit changes:
+                    conn.commit()
+                else:
+                    self.ids.counter_label.color = (1, 0, 0, 1)
+                    self.ids.timer_label.color = (1, 0, 0, 1)
+            else:
+                self.ids.counter_label.color = (1, 0, 0, 1)
+                self.ids.timer_label.color = (1, 0, 0, 1)
 
         else:
-            self.ids.counter_label.color = (1, 0, 0, 1)
-            self.ids.timer_label.color = (1, 0, 0, 1)
-        # commit changes:
-        conn.commit()
+            self.ids.add_label.text = "ДУБЛЬ ПОКАЗАНИЯ!"
 
     def save_data(self):
         pass
@@ -331,8 +292,11 @@ class DataPage(Screen):
 
     def timer_stop(self):
         self.now = datetime.today()
-        self.ids.timer_input.text = self.ids.add_label.text
+        insert_time = self.ids.add_label.text
+        if insert_time.split(':')[0].isdigit():
+            self.ids.timer_input.text = self.ids.add_label.text
         self.ids.add_label.text = 'ТАЙМЕР ОСТАНОВЛЕН'
+
 
     # def read_data(self):
 
@@ -365,46 +329,13 @@ class DataPage(Screen):
     #     self.ids.update_label.text = message
 
 
-class CreateBasePop(Popup):
-
-    def add_model(self, model):
-        """ add new model to database:"""
-        if model:
-            for i in range(1, 5):
-                if model in [x[1] for x in all_models]:
-                    self.ids.add_model_label.text = \
-                        f"{model} уже в базе".upper()
-                    break
-                elif settings['models'][f'model{i}'][0] == 'None':
-                    model = model.upper()
-                    model_tabel = re.sub("[^А-ЯаA-Za-z0-9]", "", model)
-                    connect = sqlite3.connect('../database.db')
-                    curs_add_model = connect.cursor()
-                    curs_add_model.execute(
-                        "INSERT INTO Models (model, model_tabel) VALUES (?,"
-                        "?)", (model, model_tabel,))
-                    curs_add_model.execute(f"CREATE TABLE {model_tabel} "
-                                           f"(counter INTEGER, time INTEGER)")
-                    connect.commit()
-                    f3 = open("../settings.bin", "rb+")
-                    settings['models'][f'model{i}'] = [model, model_tabel]
-                    pickle.dump(settings, f3)
-                    self.ids.add_model_label.text = f"{model} В БАЗЕ"
-                    break
-                else:
-                    self.ids.add_model_label.text = "База моделей " \
-                                                   "заполнена".upper()
-
 
 class SettingsPage(Screen):
-    model1 = settings['models']['model1'][0]
-    model2 = settings['models']['model2'][0]
-    model3 = settings['models']['model3'][0]
-    model4 = settings['models']['model4'][0]
-
-
-class TabbedPanel(TabbedPanelItem):
-    pass
+    def selected(self, filename):
+        try:
+            self.ids.selected_image.source = filename[0]
+        except:
+            pass
 
 
 class PageManager(ScreenManager):

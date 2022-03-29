@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from google.oauth2 import service_account
+# from google.oauth2 import service_account
 # from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
 # from googleapiclient.discovery import build
 import pprint
@@ -142,4 +142,7 @@ def update_from_drive():
 # curs.execute("SELECT * FROM Models")
 # all_models = curs.fetchall()
 # print('SONY V-123' not in [x[1] for x in all_models])
-settings_read()
+
+counter = 'A:23:55'
+time_cell = re.sub(r'[^0-9]+', ':', counter)
+print(time_cell)
