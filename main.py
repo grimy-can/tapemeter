@@ -137,11 +137,12 @@ class HomePage(Screen):
             self.ids.entry.text += str(value)
 
     def calculator_abs(self, value):
+        """value - Значение счётчика из оранжевого поля"""
         tapemeter_abs = grab_records()
         count = cal_average(tapemeter_abs)
         if value and count:
-            tape_len = (count_one * int(float(value)))\
-                       * 2 - timedelta(minutes=0, seconds=20)
+            minus = timedelta(days=0, hours=0, minutes=0, seconds=20)
+            tape_len = (count * int(float(value))) * 2 - minus
             # get rid from microseconds:
             tape_side = tape_len / 2
             tape_len = tape_len - timedelta(
@@ -227,7 +228,7 @@ class DataPage(Screen):
     def add_new_reading(self, counter, timer):
         temp_dict = grab_records()
         if int(counter) not in list(temp_dict.keys()):
-        # add a record to current model:
+            # add a record to current model:
             if len(counter) and len(timer) \
                     and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
                 time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)

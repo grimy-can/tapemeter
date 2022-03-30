@@ -143,6 +143,5 @@ def update_from_drive():
 # all_models = curs.fetchall()
 # print('SONY V-123' not in [x[1] for x in all_models])
 
-counter = 'A:23:55'
-time_cell = re.sub(r'[^0-9]+', ':', counter)
-print(time_cell)
+minus = timedelta(days=0, hours=0, minutes=0, seconds=20)
+print(minus)

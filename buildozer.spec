@@ -7,7 +7,7 @@ title = Tapemeter
 package.name = tapeapp
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = org.test
+package.domain = ru.grimycan.tapemeter
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -29,15 +29,17 @@ source.exclude_dirs = tests, bin, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.4.1
+version = 0.5.1
 
 # (str) Application versioning (method 2)
  #version.regex = __version__ = ['"](.*)['"]
 # version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
-# comma separated e.g. requirements = sqlite3,kivy,
-requirements = python3,kivy,lxml,beautifulsoup4,html5lib,requests,openssl,android,urllib3, chardet, certifi, idna
+# comma separated e.g. requirements = sqlite3,kivy
+# lxml,beautifulsoup4,html5lib,requests,openssl,android,urllib3, chardet, certifi, idna
+requirements = python3,kivy,sqlite3
+
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes

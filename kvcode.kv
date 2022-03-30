@@ -566,14 +566,14 @@ PageManager:
                     pos: self.pos
         BoxLayout:
             padding: 15
-            pos_hint: {"x":0, "top": 0.95}
-            size_hint: 1, 0.3
+            pos_hint: {"x":0, "top": 0.93}
+            size_hint: 1, 0.28
             Image:
                 id: selected_image
         BoxLayout:
             orientation: 'vertical'
             pos_hint: {"x":0, "top": 0.68}
-            size_hint: 1, .6
+            size_hint: 1, .55
             FileChooserListView:
                 id: file_chooser
                 on_selection: root.selected(file_chooser.selection )
