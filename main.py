@@ -11,6 +11,15 @@ import pickle
 import re
 import os
 import shutil
+from kivy.utils import platform
+PATH = '.'
+if platform == 'android':
+    from android.permissions import request_permissions, Permission
+    request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
+    app_folder = os.path.dirname(os.path.abspath(__file__))
+    PATH = "/storage/emulated/0/backups"
+else:
+    app_folder = 'ПУТЬ НЕ СУЩЕСТВУЕТ'
 # import requests
 # from bs4 import BeautifulSoup
 
@@ -229,10 +238,10 @@ class DataPage(Screen):
 
     def add_new_reading(self, counter, timer):
         temp_dict = grab_records()
-        if int(counter) not in list(temp_dict.keys()):
-            # add a record to current model:
-            if len(counter) and len(timer) \
-                    and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
+        if len(counter) and len(timer) \
+                and not len(re.findall('[а-яА-ЯёЁa-zA-Z]+', timer)):
+            if int(counter) not in list(temp_dict.keys()):
+                # add a record to current model
                 time_cell = re.sub(r'[^A-Za-z0-9]+', ':', timer)
                 if len(time_cell.split(':')) == 3:
                     curs.execute(
@@ -250,11 +259,12 @@ class DataPage(Screen):
                     self.ids.counter_label.color = (1, 0, 0, 1)
                     self.ids.timer_label.color = (1, 0, 0, 1)
             else:
-                self.ids.counter_label.color = (1, 0, 0, 1)
-                self.ids.timer_label.color = (1, 0, 0, 1)
-
+                self.ids.add_label.text = "ДУБЛЬ ПОКАЗАНИЯ!"
         else:
-            self.ids.add_label.text = "ДУБЛЬ ПОКАЗАНИЯ!"
+            self.ids.counter_label.color = (1, 0, 0, 1)
+            self.ids.timer_label.color = (1, 0, 0, 1)
+
+
 
     def save_data(self):
         pass
@@ -300,14 +310,16 @@ class DataPage(Screen):
             self.ids.timer_input.text = self.ids.add_label.text
         self.ids.add_label.text = 'ТАЙМЕР ОСТАНОВЛЕН'
 
-    # def read_data(self):
+    def read_data(self):
+        # grab reord from database:
+        curs.execute("SELECT * FROM Model")
+        all_entrys = curs.fetchall()
+        # loop:
+        for row in all_entrys:
+            self.ids.scroller_label.text += f"    {str(row[0])}  :  {str(row[1])} \n"
 
-    #     # grab reord from database:
-    #     curs.execute("SELECT * FROM CassetesTime")
-    #     all_base = curs.fetchall()
-    #     # loop:
-    #     for row in all_base:
-    #         print(row)
+    def base_path(self):
+            self.ids.update_label.text = app_folder
 
     # def update_to_drive(self):
     #     """ update database to googledrive: """
@@ -331,7 +343,6 @@ class DataPage(Screen):
     #     self.ids.update_label.text = message
 
 
-
 class SettingsPage(Screen):
 
     def selected(self, filename):
@@ -342,21 +353,21 @@ class SettingsPage(Screen):
 
     def make_app_dir(self):
         try:
-            os.mkdir('TapemeterFolder')
+            os.mkdir(f'{PATH}/TapemeterFolder')
             self.ids.dir_text.text = 'ПАПКА СОЗДАНА'
         except FileExistsError:
             self.ids.dir_text.text = 'ПАПКА СУЩЕСТВУЕТ'
 
     def save_database(self):
         try:
-            shutil.copy2('../database.db', 'TapemeterFolder')
-            self.ids.dir_text.text = 'БАЗА СОХРАНЕНА В ПАПКУ "TapemeterFolder"'
+            shutil.copy2('../database.db', f'{PATH}/TapemeterFolder/database.db')
+            self.ids.dir_text.text = 'БАЗА СОХРАНЕНА В ПАПКУ "backups"'
         except FileNotFoundError:
             self.ids.dir_text.text = 'ПАПКА НЕ СУЩЕСТВУЕТ'
 
 
 class PageManager(ScreenManager):
-    #handling on BACK - button on device:
+    # handling on BACK - button on device:
     def __init__(self, **kwargs):
         super(PageManager, self).__init__(**kwargs)
         Window.bind(on_keyboard=self.on_key)
@@ -383,8 +394,7 @@ gui = Builder.load_file("kvcode.kv")
 
 
 class TapeApp(App):
-    dir_path = App.user_data_dir
-    print(dir_path)
+
     def build(self):
         # interval calling update clock for time label
         Clock.schedule_interval(self.update_clock, 1)
@@ -394,7 +404,6 @@ class TapeApp(App):
         # update clock for time label
         self.root.ids.home.ids.time_label.text = \
             datetime.now().strftime('%H:%M:%S')
-
 
     def exit_app(self):
         # close connection sqlite and exin app on button "ВЫХОД"
