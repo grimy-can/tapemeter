@@ -68,6 +68,7 @@ PageManager:
             size_hint: .2, .13
             pos_hint: {"x":.8, "top": 1}
             on_press: root.calculator_rel(entry.text)
+            on_release: root.calculator_abs(entry.text)
             on_press: root.login_btn_press()
             on_release: root.login_btn_rel()
             on_release: delete_left.color = (1, 1, 1, 1)
@@ -572,26 +573,52 @@ PageManager:
                 id: selected_image
         BoxLayout:
             orientation: 'vertical'
-            pos_hint: {"x":0, "top": 0.68}
-            size_hint: 1, .55
+            pos_hint: {"x":0, "top": 0.67}
+            size_hint: 1, .5
             FileChooserListView:
                 id: file_chooser
                 on_selection: root.selected(file_chooser.selection )
-
+        Label:
+            pos_hint: {"x":0, "top": 0.16}
+            size_hint: 1, .07
+            text:"TEXT"
+            id: dir_text
+            background_color: (75/255, 75/255, 75/255, 1)
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
         Button:
-            id: new_base_butt
-            pos_hint: {"center_x":0.5, "top": 0.07}
+            id: new_folder
+            pos_hint: {"center_x":0.75, "top": 0.07}
             size_hint: 0.45, 0.05
             color: (0,0,0,1)
             background_normal: ''
             background_color:(240/255, 148/255,22/255, 1)
             size: self.texture_size
-            text: 'ДОБАВИТЬ МОДЕЛЬ'
+            text: 'СОЗДАТЬ ПАПКУ'
             text_size: self.size
             font_size: (root.width + root.height) / 65
             halign: 'center'
             valign: 'middle'
-            on_press: self.text = 'ПОКА НИЧЕГО'
+            on_press: root.make_app_dir()
+#            on_release: root.make_app_dir
+        Button:
+            id: new_base_save
+            pos_hint: {"center_x":0.25, "top": 0.07}
+            size_hint: 0.45, 0.05
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'СОХРАНИТЬ БАЗУ'
+            text_size: self.size
+            font_size: (root.width + root.height) / 65
+            halign: 'center'
+            valign: 'middle'
+            on_press: root.save_database()
 
 
 

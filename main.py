@@ -9,12 +9,14 @@ from kivy.properties import ObjectProperty
 import sqlite3
 import pickle
 import re
-import requests
-from bs4 import BeautifulSoup
+import os
+import shutil
+# import requests
+# from bs4 import BeautifulSoup
 
 
 # Config.set('kivy', 'keyboard_mode', '')
-Window.size = (720/2.1, 1280/2.1)
+# Window.size = (720/2.1, 1280/2.1)
 
 
 def cal_average(dic):
@@ -104,27 +106,27 @@ class HomePage(Screen):
     display_time = ObjectProperty()
     # output_weather = ObjectProperty(base_models)
 
-    def weather(self):
-        output = ''
-        # current temperature from https://shadrinsk.nuipogoda.ru/
-        url_weather = 'https://shadrinsk.nuipogoda.ru/'
-        # specify allowable user-agent and pass it as headers:
-        ua = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
-        agent = {'User-Agent': ua}
-        try:
-            requests.get(url_weather, headers=agent)
-            page = requests.get(url_weather, headers=agent)
-            doc = BeautifulSoup(page.text, 'lxml')
-            if page.status_code == 200:
-                temperature = doc.find_all("div", class_="l")
-                output = temperature[0].div.text.split(':')[1]
-            else:
-                output = "Нет данных"
-        except requests.ConnectionError as er:
-            print(er)
-            output = "WiFi off"
-        finally:
-            self.ids.weather_label.text = output
+    # def weather(self):
+    #     output = ''
+    #     # current temperature from https://shadrinsk.nuipogoda.ru/
+    #     url_weather = 'https://shadrinsk.nuipogoda.ru/'
+    #     # specify allowable user-agent and pass it as headers:
+    #     ua = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+    #     agent = {'User-Agent': ua}
+    #     try:
+    #         requests.get(url_weather, headers=agent)
+    #         page = requests.get(url_weather, headers=agent)
+    #         doc = BeautifulSoup(page.text, 'lxml')
+    #         if page.status_code == 200:
+    #             temperature = doc.find_all("div", class_="l")
+    #             output = temperature[0].div.text.split(':')[1]
+    #         else:
+    #             output = "Нет данных"
+    #     except requests.ConnectionError as er:
+    #         print(er)
+    #         output = "WiFi off"
+    #     finally:
+    #         self.ids.weather_label.text = output
 
     def login_btn_press(self):
         self.ids.login_img1.source = 'data/login_2.png'
@@ -298,7 +300,6 @@ class DataPage(Screen):
             self.ids.timer_input.text = self.ids.add_label.text
         self.ids.add_label.text = 'ТАЙМЕР ОСТАНОВЛЕН'
 
-
     # def read_data(self):
 
     #     # grab reord from database:
@@ -332,11 +333,26 @@ class DataPage(Screen):
 
 
 class SettingsPage(Screen):
+
     def selected(self, filename):
         try:
             self.ids.selected_image.source = filename[0]
         except:
             pass
+
+    def make_app_dir(self):
+        try:
+            os.mkdir('TapemeterFolder')
+            self.ids.dir_text.text = 'ПАПКА СОЗДАНА'
+        except FileExistsError:
+            self.ids.dir_text.text = 'ПАПКА СУЩЕСТВУЕТ'
+
+    def save_database(self):
+        try:
+            shutil.copy2('../database.db', 'TapemeterFolder')
+            self.ids.dir_text.text = 'БАЗА СОХРАНЕНА В ПАПКУ "TapemeterFolder"'
+        except FileNotFoundError:
+            self.ids.dir_text.text = 'ПАПКА НЕ СУЩЕСТВУЕТ'
 
 
 class PageManager(ScreenManager):
@@ -367,7 +383,8 @@ gui = Builder.load_file("kvcode.kv")
 
 
 class TapeApp(App):
-
+    dir_path = App.user_data_dir
+    print(dir_path)
     def build(self):
         # interval calling update clock for time label
         Clock.schedule_interval(self.update_clock, 1)

@@ -29,16 +29,16 @@ source.exclude_dirs = tests, bin, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.5.1
+version = 0.5.4
 
 # (str) Application versioning (method 2)
  #version.regex = __version__ = ['"](.*)['"]
 # version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
-# comma separated e.g. requirements = sqlite3,kivy
-# lxml,beautifulsoup4,html5lib,requests,openssl,android,urllib3, chardet, certifi, idna
-requirements = python3,kivy,sqlite3
+# comma separated e.g. requirements = sqlite3,kivy,android
+# lxml,beautifulsoup4,html5lib,requests,openssl,urllib3,android,chardet, certifi, idna
+requirements = python3,kivy,sqlite3,android
 
 
 # (str) Custom source folders for requirements
@@ -95,7 +95,7 @@ fullscreen = 1
 #icon.adaptive_background.filename = %(source.dir)s/data/icon_bg.png
 
 # (list) Permissions
-android.permissions = INTERNET
+android.permissions = INTERNET, READ_EXTERNAL_STORAGE
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host

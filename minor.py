@@ -7,6 +7,8 @@ import pickle
 import io
 import re
 import sqlite3
+import os
+import shutil
 
 now = datetime.today().strftime('%Y-%m-%d')  # Current date
 with open("../settings.bin", "rb") as f:
@@ -143,5 +145,5 @@ def update_from_drive():
 # all_models = curs.fetchall()
 # print('SONY V-123' not in [x[1] for x in all_models])
 
-minus = timedelta(days=0, hours=0, minutes=0, seconds=20)
-print(minus)
+import sqlite3
+shutil.copy2('../database.db', 'TapemeterFolder')
