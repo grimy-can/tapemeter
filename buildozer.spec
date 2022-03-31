@@ -29,7 +29,7 @@ source.exclude_dirs = tests, bin, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.5.4
+version = 0.5.5
 
 # (str) Application versioning (method 2)
  #version.regex = __version__ = ['"](.*)['"]
@@ -37,7 +37,7 @@ version = 0.5.4
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy,android
-# lxml,beautifulsoup4,html5lib,requests,openssl,urllib3,android,chardet, certifi, idna
+# lxml,beautifulsoup4,html5lib,requests,openssl,urllib3,chardet, certifi, idna
 requirements = python3,kivy,sqlite3,android
 
 
