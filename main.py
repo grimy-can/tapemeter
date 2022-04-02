@@ -6,7 +6,6 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
-from kivy.factory import Factory
 from kivy.uix.popup import Popup
 import sqlite3
 import pickle
@@ -31,7 +30,7 @@ else:
 
 
 # Config.set('kivy', 'keyboard_mode', '')
-Window.size = (720/2.1, 1280/2.1)
+# Window.size = (720/2.1, 1280/2.1)
 
 
 def cal_average(dic):
