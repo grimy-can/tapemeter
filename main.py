@@ -363,7 +363,7 @@ class SettingsPage(Screen):
     def selected(self, filepath):
         try:
             self.ids.selected_image.source = filepath[0]
-            filename = filepath[0].split('\\')[-1]
+            filename = filepath[0].split('/')[-1]
             self.ids.dir_text.text = filename
             if filename.split('.')[-1] == 'db':
                 PopFileUp.file_name = filename
@@ -386,6 +386,9 @@ class SettingsPage(Screen):
         except FileNotFoundError:
             self.ids.dir_text.text = 'ПАПКА НЕ СУЩЕСТВУЕТ'
 
+    def clear_folder(self):
+        list(map(os.unlink, (os.path.join( f'{PATH}/TapemeterFolder',f) for f in os.listdir(f'{PATH}/TapemeterFolder'))))
+        self.ids.dir_text.text = 'ВСЕ BACKUPS УДАЛЕНЫ'
 
 class PageManager(ScreenManager):
     # handling on BACK - button on device:

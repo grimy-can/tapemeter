@@ -65,14 +65,14 @@ PageManager:
 #            pos_hint: {"center_x":0.5, "center_y": 0.5}
             size_hint: 1, 0.25
             padding: 15
-            spacing: 15
+            spacing: 25
             Button:
                 color: (0,0,0,1)
                 background_normal: ''
                 background_color:(240/255, 148/255,22/255, 1)
                 text: 'ОК'
                 text_size: self.size
-                font_size: (root.width + root.height) / 55
+                font_size: (root.width + root.height) / 45
                 halign: 'center'
                 valign: 'middle'
                 on_press: root.restore_base()
@@ -83,7 +83,7 @@ PageManager:
                 background_color:(240/255, 148/255,22/255, 1)
                 text: 'ЗАКРЫТЬ'
                 text_size: self.size
-                font_size: (root.width + root.height) / 55
+                font_size: (root.width + root.height) / 45
                 halign: 'center'
                 valign: 'middle'
                 on_release: root.dismiss()
@@ -632,7 +632,7 @@ PageManager:
             size_hint: 1, .5
             FileChooserListView:
                 id: file_chooser
-                path: root.dicm_path
+                path: root.backup_path
                 on_selection: root.selected(file_chooser.selection)
                 on_selection: if root.selected(file_chooser.selection): Factory.PopFileUp().open()
         Label:
@@ -649,13 +649,13 @@ PageManager:
                     pos: self.pos
         Button:
             id: new_folder
-            pos_hint: {"center_x":0.75, "top": 0.07}
-            size_hint: 0.45, 0.05
+            pos_hint: {"center_x":0.85, "top": 0.07}
+            size_hint: 0.25, 0.05
             color: (0,0,0,1)
             background_normal: ''
             background_color:(240/255, 148/255,22/255, 1)
             size: self.texture_size
-            text: 'СОЗДАТЬ ПАПКУ'
+            text: 'FOLDER'
             text_size: self.size
             font_size: (root.width + root.height) / 65
             halign: 'center'
@@ -663,18 +663,35 @@ PageManager:
             on_release: root.make_app_dir()
         Button:
             id: new_base_save
-            pos_hint: {"center_x":0.25, "top": 0.07}
-            size_hint: 0.45, 0.05
+            pos_hint: {"center_x":0.5, "top": 0.07}
+            size_hint: 0.25, 0.05
             color: (0,0,0,1)
             background_normal: ''
             background_color:(240/255, 148/255,22/255, 1)
             size: self.texture_size
-            text: 'СОХРАНИТЬ БАЗУ'
+            text: 'BACKUP'
             text_size: self.size
             font_size: (root.width + root.height) / 65
             halign: 'center'
             valign: 'middle'
             on_press: root.save_database()
+            on_press: file_chooser.path = ''
+            on_release: file_chooser.path = root.backup_path
+        Button:
+            id: clear_folder
+            pos_hint: {"center_x":0.15, "top": 0.07}
+            size_hint: 0.25, 0.05
+            color: (0,0,0,1)
+            background_normal: ''
+            background_color:(240/255, 148/255,22/255, 1)
+            size: self.texture_size
+            text: 'CLEAR'
+            text_size: self.size
+            font_size: (root.width + root.height) / 65
+            halign: 'center'
+            valign: 'middle'
+            on_press: root.clear_folder()
+            on_press: file_chooser.path = ''
             on_release: file_chooser.path = root.backup_path
 
 
