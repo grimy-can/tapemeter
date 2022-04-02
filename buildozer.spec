@@ -29,7 +29,7 @@ source.exclude_dirs = tests, bin, venv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.5.5
+version = 0.5.8
 
 # (str) Application versioning (method 2)
  #version.regex = __version__ = ['"](.*)['"]
@@ -95,7 +95,7 @@ fullscreen = 1
 #icon.adaptive_background.filename = %(source.dir)s/data/icon_bg.png
 
 # (list) Permissions
-android.permissions = INTERNET, READ_EXTERNAL_STORAGE
+android.permissions = INTERNET, READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
 
 # (list) features (adds uses-feature -tags to manifest)
 #android.features = android.hardware.usb.host

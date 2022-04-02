@@ -6,6 +6,8 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
+from kivy.factory import Factory
+from kivy.uix.popup import Popup
 import sqlite3
 import pickle
 import re
@@ -15,17 +17,21 @@ from kivy.utils import platform
 PATH = '.'
 if platform == 'android':
     from android.permissions import request_permissions, Permission
+    from android import loadingscreen
+    loadingscreen.hide_loading_screen()
     request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
     app_folder = os.path.dirname(os.path.abspath(__file__))
     PATH = "/storage/emulated/0/backups"
+    PATH_DICM = "/storage/emulated/0/DICM"
 else:
     app_folder = 'ПУТЬ НЕ СУЩЕСТВУЕТ'
+    PATH_DICM = 'ПУТЬ НЕ СУЩЕСТВУЕТ'
 # import requests
 # from bs4 import BeautifulSoup
 
 
 # Config.set('kivy', 'keyboard_mode', '')
-# Window.size = (720/2.1, 1280/2.1)
+Window.size = (720/2.1, 1280/2.1)
 
 
 def cal_average(dic):
@@ -44,7 +50,7 @@ def cal_average(dic):
         return timedelta(0, 0, 0)
 
 
-now = datetime.today().strftime('%Y-%m-%d')  # Current time
+now = datetime.today().strftime('%H:%M:%S')  # Current time
 now_date = datetime.today().strftime('%Y-%m-%d')  # Current date
 try:
     f = open("../settings.bin", "rb")
@@ -314,10 +320,10 @@ class DataPage(Screen):
         # grab reord from database:
         curs.execute("SELECT * FROM Model")
         all_entrys = curs.fetchall()
+        self.ids.update_label.text = 'ПОДКЛЮЧЕН К БАЗЕ'
         # loop:
         for row in all_entrys:
             self.ids.scroller_label.text += f"    {str(row[0])}  :  {str(row[1])} \n"
-
     def base_path(self):
             self.ids.update_label.text = app_folder
 
@@ -343,11 +349,26 @@ class DataPage(Screen):
     #     self.ids.update_label.text = message
 
 
-class SettingsPage(Screen):
+class PopFileUp(Popup):
+    file_name = ""
+    file_name_date = ''
+    def restore_base(self):
+        self.file_name_date = self.file_name.split('_')[1]
+        shutil.copy2(f'{PATH}/TapemeterFolder/{self.file_name}','../database.db', )
+        # SettingsPage.children.ids.settings.ids.dir_text.text = f"ВОССТАНОВЛЕНА БАЗА ОТ {self.file_name}"
 
-    def selected(self, filename):
+
+class SettingsPage(Screen):
+    dicm_path = PATH_DICM
+    backup_path = f'{PATH}/TapemeterFolder'
+    def selected(self, filepath):
         try:
-            self.ids.selected_image.source = filename[0]
+            self.ids.selected_image.source = filepath[0]
+            filename = filepath[0].split('\\')[-1]
+            self.ids.dir_text.text = filename
+            if filename.split('.')[-1] == 'db':
+                PopFileUp.file_name = filename
+                return True
         except:
             pass
 
@@ -360,7 +381,8 @@ class SettingsPage(Screen):
 
     def save_database(self):
         try:
-            shutil.copy2('../database.db', f'{PATH}/TapemeterFolder/database.db')
+            file_name =  f"database_{now_date + '_' + datetime.today().strftime('%H-%M-%S')}.db"
+            shutil.copy2('../database.db', f'{PATH}/TapemeterFolder/{file_name}')
             self.ids.dir_text.text = 'БАЗА СОХРАНЕНА В ПАПКУ "backups"'
         except FileNotFoundError:
             self.ids.dir_text.text = 'ПАПКА НЕ СУЩЕСТВУЕТ'
